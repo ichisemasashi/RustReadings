@@ -1,0 +1,103 @@
+# コピートレイト {#コピートレイト .View_chapterTitle__tslMs}
+
+## 📌 コピートレイト
+
+Rust には **トレイト**
+（trait）というデータ型を分類する概念があります．例えば，数値全般を表す
+`Num`
+というトレイトがあったとき，それを実装しているデータ型はすべて数値型として分類することができる，というものです．トレイトには特有のメソッドを実装することが出来ます．また，ジェネリクスにおいて，あるトレイトを実装した型であるという制約をかけることが出来ます．これを
+**トレイト境界** （trait bound）と呼びます．
+
+トレイトは標準でいくつか実装されているものがあり，その１つが
+**コピートレイト** （Copy
+Trait）です．束縛したオブジェクトがコピートレイトを実装したデータ型の変数から別の変数に束縛するときは，所有権は移動せず，値をコピーして新しいオブジェクト（そして所有権）を作成します．Rust
+のプリミティブ型はコピートレイトを実装しています．
+
+
+``` 
+fn main() {
+    let a = 10;            // immutable object
+    let b = a;             // copy
+    print!("{} {}", a, b); // borrow check!! - OK
+}
+```
+
+
+不変参照 (`&`) もコピートレイトを実装しています．
+
+
+``` 
+fn main() {
+    let a = 10;                  // immutable object
+    let a_ref = &a;              // reference
+    let a_ref_copy = a_ref;      // copy reference
+    print!("{} {} {}", a, a_ref, a_ref_copy); // borrow check!! - OK
+}
+```
+
+
+注意なのが，可変参照 (`&mut`)
+はコピートレイトを実装していません．なぜなら，可変参照は１つしか存在してはいけないからです．
+
+
+``` 
+fn main() {
+    let mut a = 10;                 // mutable object
+    let a_mut_ref = &mut a;         // mutable reference
+    let a_mut_ref_move = a_mut_ref; // move mutable reference
+    print!("{}", a_mut_ref);        // borrow check!! - Error!
+}
+```
+
+
+次のように可変参照の場合は移動します．
+
+
+``` 
+fn main() {
+    let mut a = 10;                 // mutable object
+    let a_mut_ref = &mut a;         // mutable reference
+    let a_mut_ref_move = a_mut_ref; // move mutable reference
+    print!("{}", a_mut_ref_move);   // borrow check!! - OK
+}
+```
+
+
+データ型がコピートレイトを実装しているかどうかはドキュメントに記載されています．調べたい型のドキュメントにある
+`Trait Implementations` の中に `Copy`
+があるかどうか確認してみてください．
+
+![rust-copytrait-implementation](https://storage.googleapis.com/zenn-user-upload/ryxhp3bdp07212iu158s1wj7bcnz)
+
+また，下記に示す関数 `copy_trait_check`
+では，トレイト境界を使って引数の型がコピートレイトを実装していることを制約します．実装されていなかったらコンパイルエラーになります．エラーから分かるように，
+`String` 型はコピートレイトを実装していません．
+
+
+``` 
+fn copy_trait_check<T: Copy>(_: T) {} // trait bound
+
+fn main() {
+    let s = String::from("hello");    // String
+    copy_trait_check(s);
+                    // ^ the trait `Copy` is not implemented for `String`
+                    // error[E0277]: the trait bound `String: Copy` is not satisfied
+    let a = 10;          // i32
+    copy_trait_check(a); // OK
+}
+```
+
+
+不変束縛の変数から可変束縛の変数に変えることができます．
+
+![rust-ownership05](https://storage.googleapis.com/zenn-user-upload/09t17cvqsj3r7eifr14mh9xohu0q)
+
+変数 `a` から変数 `b` に所有権が移動し，可変に変わります．そして，変数
+`a`
+の束縛は解除されます．もし，オブジェクトがコピートレイトを実装していたらコピーが作成され，変数
+`a` はオブジェクトを束縛したままで，変数 `b`
+には新しい可変のオブジェクトが束縛されます．
+
+
+
+

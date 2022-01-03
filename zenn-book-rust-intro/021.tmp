@@ -1,0 +1,111 @@
+# イテレータ {#イテレータ .View_chapterTitle__tslMs}
+
+## 📌 イテレータ
+
+**イテレータ**
+は連続したオブジェクトを順番に取り扱うための機能を提供するオブジェクトです．配列やスライス，後で解説する
+**コレクション** でよく使います．イテレータは `Iterator`
+トレイトのインスタンスです：
+
+
+``` 
+pub trait Iterator {
+    type Item;
+    fn next(&mut self) -> Option<Self::Item>;
+    
+    // methods with default implementations elided
+}
+```
+
+
+ここで， `type Item` は **関連型** と呼ばれるもので，インスタンスはこの
+`Item` 型を定義しなければなりません．
+
+イテレータには多くの便利なメソッドが定義されています．いくつか紹介します．まずは
+`zip`
+です．これは別のイテレータを受け取って合成し，新しいイテレータを返します．要素はタプルになります．このようなイテレータから別のイテレータを作るメソッドは
+**アダプタ** と呼ばれています．
+
+
+``` 
+let a1 = [1, 2, 3];
+let a2 = [4, 5, 6];
+let mut iter = a1.iter().zip(a2.iter());
+```
+
+
+`map` は各要素に関数を適用します：
+
+
+``` 
+let a = [1, 2, 3];
+let mut iter = a.iter().map(|x| 2 * x);
+```
+
+
+`filter` は各要素に対して関数を適用し， `true`
+を返した要素だけを取り出します：
+
+
+``` 
+let a = [0i32, 1, 2];
+let mut iter = a.iter().filter(|x| x.is_positive());
+```
+
+
+`fold`
+は状態を持ち，各要素に対して関数を適用して状態を更新し，その状態を返します：
+
+
+``` 
+let a = [1, 2, 3];
+// the sum of all of the elements of the array
+let sum = a.iter().fold(0, |acc, x| acc + x);
+```
+
+
+`collect` はイテレータの全要素をコレクションに変換します：
+
+
+``` 
+let a = [1, 2, 3];
+let doubled: Vec<i32> = a.iter()
+                         .map(|&x| x * 2)
+                         .collect();
+```
+
+
+`enumerate` はインデックスと各要素のペアをタプルにします：
+
+
+``` 
+let a = ['a', 'b', 'c'];
+let mut iter = a.iter().enumerate();
+// (0, &'a'), (1, &'b'), (2, &'c')
+```
+
+
+`for_each`
+は要素に関数を適用しますが，その関数は戻り値を返しません．また，
+`for_each` メソッドはイテレータを返しません．それに対して， `inspect`
+はイテレータを返します． `map` では `println!`
+といったIO出力などの副作用が使えないので代わりに `inspect` を使います：
+
+
+``` 
+let a = [1, 4, 2, 3];
+let sum = a.iter()
+    .cloned()
+    .inspect(|x| println!("about to filter: {}", x))
+    .fold(0, |sum, i| sum + i);
+println!("{}", sum);
+```
+
+
+コレクションなどイテレータを返すメソッドには `iter()`, `iter_mut()`,
+`into_iter()` があります．それぞれ，引数に `&self`, `&mut self`, `self`
+を受け取ります．
+
+
+
+

@@ -1,0 +1,34 @@
+# Option {#option .View_chapterTitle__tslMs}
+
+## 📌 Option
+
+Rust には無効な値を取ることができる便利な列挙型として `Option`
+があります． `T` はジェネリック型です．
+
+
+``` 
+enum Option<T> {
+    Some(T),
+    None,
+}
+```
+
+
+`Option` 型に有効な値を束縛するときは `Some`
+を使います．また，無効な値を束縛するときは `None` を使います．
+
+
+``` 
+let some_number = Some(5);
+let some_string = Some("a string");
+let absent_number: Option<i32> = None;
+```
+
+
+`Option`
+型のオブジェクトから値を取り出すには，この後に説明するパターンマッチングか，
+`unwrap` などのメソッドを使います．
+
+
+
+

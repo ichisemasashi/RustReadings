@@ -1,0 +1,367 @@
+# Tips {#tips .View_chapterTitle__tslMs}
+
+## 📌 未使用の変数
+
+プログラムの中に未使用の変数があればコンパイル時に警告が出ます．その場合は変数の前にアンダースコア（`_`）を付けることで，警告を抑制できます．
+
+## 📌 分解束縛
+
+分解束縛において，多くのフィールドがあるときに，必要なものだけ束縛して，残りは無視したいことがあるかもしれません．そのときは，
+`..` を使用します：
+
+
+``` 
+struct Point {
+    x: i32,
+    y: i32,
+    z: i32,
+}
+
+let origin = Point { x: 0, y: 0, z: 0 };
+
+match origin {
+    Point { x, .. } => println!("x is {}", x),
+}
+```
+
+
+## 📌 ドキュメント
+
+オフラインで Rust のドキュメントを参照するには次のコマンドを使います
+
+
+    rustup doc
+
+
+現在のワークスペースに関するドキュメントを参照するには次のコマンドを使います
+
+
+    cargo doc [--open]
+
+
+Rust には `rustdoc`
+というソースコードからドキュメントを作成するツールが付属しています．
+`cargo doc`
+はワークスペースにあるソースコードおよび，外部パッケージからドキュメントを生成してくれます．コメントにドキュメントを入れるには
+`///` や `//!` を使います． `///` は宣言に対して，`//!`
+はコンテキストに対して，ドキュメントを作成します．詳しくは公式ドキュメントを参照してください．
+
+## 📌 デバッグ時やテスト時のみ有効なコード
+
+`cfg!`
+を使うことで環境に合わせたコードを作成することが出来ます．例えばデバッグ時の場合は
+`debug_assertions` を指定します．
+
+
+``` 
+if cfg!(debug_assertions) {
+    ...
+}
+```
+
+
+否定の時は `not` を使います．
+
+
+``` 
+if cfg!(not(debug_assertions)) {
+    ...
+}
+```
+
+
+他には，テスト( `cargo test` )時に有効になる `test` があります．
+
+
+``` 
+if cfg!(test) {
+    ...
+}
+```
+
+
+## 📌 属性
+
+属性とは追加情報（メタデータ）のことで，宣言やコンテキストに対して付与することができます．よく使うのは，トレイトの規定実装を示す
+`#[derive(...)]`，ユニットテストの `#[test]`, `#[should_panic]`,
+`#[ignore]`，そして，コンパイラに伝える `#[allow(...)]` や `#[cfg(...)]`
+です．コンテキストはそのモジュール内に全て適用されるので，例えばクレートルート(
+`src/main.rs` など)の先頭に `#![allow(...)]`
+を指定すると，すべてのモジュールに適用されます．
+
+## 📌 演算子のオーバーロード
+
+Rust
+は新しい演算子の定義をすることができません．任意の演算子のオーバーロードは
+`std::ops` にあるものだけ可能です．
+
+
+``` 
+use std::ops::Add;
+#[derive(Debug, PartialEq)]
+    struct Point {
+    x: i32,
+    y: i32,
+}
+
+impl Add for Point {
+    type Output = Point;
+
+    fn add(self, other: Point) -> Point {
+        Point {
+            x: self.x + other.x,
+            y: self.y + other.y,
+        }
+    }
+}
+```
+
+
+## 📌 型の別名
+
+既存の型に別名を付けることができます．その場合は `type` を使います．
+
+
+``` 
+type Kilometers = i32;
+```
+
+
+## 📌 Prelude
+
+`Prelude` とは標準で使用可能なモジュールのことです．ここには基本的な型や
+`Box`, `Vec`
+といった頻繁に使用するものが含まれています．例えば次のような単純な Hello
+World!! コードがあります．
+
+
+``` 
+fn main() {
+    println!("Hello world!");
+}
+```
+
+
+これを，Rust Playground でコード展開してみると，次のようになります．
+
+
+``` 
+#![feature(prelude_import)]
+#[prelude_import]
+use std::prelude::v1::*;
+#[macro_use]
+extern crate std;
+fn main() {
+    {
+        ::std::io::_print(
+            ::core::fmt::Arguments::new_v1(
+                &["Hello world!\n"],
+                &match () {
+                    () => [],
+                }
+            )
+        );
+    };
+}
+```
+
+
+`use std::prelude::v1::*`
+があるのがわかります．このように，パッケージ内のライブラリを利用するときに最低限必要なものをまとめたものを
+`prelude` として用意されている場合があります．
+
+## 📌 dbg!
+
+`dbg!`
+マクロは変数や式の結果を出力するのに便利です．次のように使います．
+
+
+``` 
+let a = 2;
+let b = dbg!(a * 2) + 1;
+// ^-- prints: [src/main.rs:2] a * 2 = 4
+assert_eq!(b, 5);
+```
+
+
+## 📌 DisplayとDebugトレイト
+
+`Display` と `Debug`
+トレイトは文字列変換やデバッグ出力に便利なトレイトです． `Debug`
+トレイトは `derive` 属性で規定実装が可能ですが， `Display`
+はそれが出来ません．例えば， `Debug` トレイトを `derive`
+で規定実装し，`Display` トレイトを実装する場合は次のようになります．
+
+
+``` 
+use std::fmt;
+
+#[derive(Debug)]
+struct Point {
+    x: f64,
+    y: f64,
+}
+
+impl fmt::Display for Point {
+    fn fmt(&self, f: &mut fmt::Formatter<'_>) -> fmt::Result {
+        write!(f, "{}, {}", self.x, self.y)
+    }
+}
+
+fn main() {
+    let p = Point { x: 1.0, y: 2.0 };
+    println!("{}, {:?}", p, p);
+}
+```
+
+
+## 📌 if let Some(x) をもっと短く
+
+以下のコードを見てください．
+
+
+``` 
+fn main() {
+    let a = Some(10);
+    if let Some(x) = a {
+        dbg!(x);
+    }
+}
+```
+
+
+これは次のように，さらに短く書くことができます．ただし，コードとして意図がわかりづらくなってしまうので注意です．
+
+
+``` 
+fn main() {
+    let a = Some(10);
+    for x in a {
+        dbg!(x);
+    }
+}
+```
+
+
+## 📌 while 式
+
+他の言語には `do...while(condition)`
+といった一回実行して，２回目以降は条件を満たしているときに実行される構文が用意されていることがあります．これを
+Rust で行う場合は，まず `loop` 式を使う方法が考えられます．
+
+
+``` 
+fn main() {
+    let mut x = 0;
+    loop {
+        x += 1;
+        if x >= 10 {
+            break;
+        }
+    }
+    dbg!(x); // x=10
+}
+```
+
+
+これは，次のように `while` 式に書き換えることができます．
+
+
+``` 
+fn main() {
+    let mut x = 0;
+    while {
+        x += 1;
+        x < 10
+    } {}
+    dbg!(x); // x=10
+}
+```
+
+
+`while`
+式の条件には式が使えるので，ブロックも使えます．ブロックの最後に条件を入れることで短く書くことが出来ます．この場合は空ブロック(
+`{}` )を忘れないようにしましょう．\
+ただし，この条件式を使う方法では， `break`
+などが使えません．この場合は， **ラベル** を使います．Rust
+ではループに名前を付けることができます．このラベルを `break`
+で指定することで条件式でも `break` を使うことができます．ラベルは
+`while` などの前に `'label:` という形で指定します．
+
+
+``` 
+fn main() {
+    let mut x = 0;
+    'a: while {
+        x += 1;
+        if x > 5 { break 'a; }
+        x < 10
+    } {}
+    dbg!(x); // x=6
+}
+```
+
+
+このラベル機能は，例えばネストされたループで，内側のループから外側のループを一気に抜けることができます．
+
+
+``` 
+fn main() {
+    let mut x = 0;
+    'outer: loop {
+        'inner: while {
+            x += 1;
+            if x > 5 { break 'outer; }
+            x < 10
+        } {}
+    }
+    dbg!(x); // x=6
+}
+```
+
+
+もちろん，このラベルは条件式だけでなく，本体の中でも使用することができます．
+
+## 📌 rustfmt
+
+Rust にはコード整形ツールがついています．それが `rustfmt`
+です．次のように使います．
+
+
+    rustfmt <filename>
+
+
+`cargo fmt` を使うとワークスペース内のファイルに対して実行します．
+
+
+    cargo fmt
+
+
+`--check` オプションを指定すると，整形を行わずに警告を表示してくれます．
+`cargo fmt` にこのオプションをつけるときは， `cargo`
+のオプションと区別するために `--` を前に付けます．
+
+
+    rustfmt <filename> --check
+    cargo fmt -- --check
+
+
+## 📌 clippy
+
+不適切なコードを指摘してくれる `clippy`
+というツールがあります．次のように使います．
+
+
+    cargo clippy
+
+
+## 📌 APIガイドライン
+
+Rust
+の関数や変数の名前など，コーディングに関する規約がまとめられています．一読することをオススメします．
+
+-   Rust API Guidelines
+
+
+
+

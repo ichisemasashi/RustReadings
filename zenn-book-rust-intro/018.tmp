@@ -1,0 +1,143 @@
+# 並列処理 {#並列処理 .View_chapterTitle__tslMs}
+
+## 📌 スレッド
+
+最も基本的な並列処理はスレッドを作成することです．スレッドを作成するには
+`thread::spawn` を使います．引数にはクロージャを指定します．
+
+
+``` 
+use std::thread;
+thread::spawn(|| {
+    // thread code
+});
+```
+
+
+`thread::spawn` は `JoinHandle` 型を返します． `join()`
+メソッドを呼び出すことで終了を待ちます． `join()` は `Result`
+型を返します．
+
+
+``` 
+let handle = thread::spawn(|| {
+    // thread code
+});
+handle.join().unwrap();
+```
+
+
+クロージャの環境をスレッド間で共有することは通常の方法では出来ません．コピーを作成できるなら，環境にコピーされますが，そうでないなら所有権を移動しなければなりません．その場合は
+`move` を使います．
+
+
+``` 
+use std::thread;
+
+fn main() {
+    let v = vec![1, 2, 3];
+
+    let handle = thread::spawn(move || {
+        println!("Here's a vector: {:?}", v);
+    });
+
+    handle.join().unwrap();
+}
+```
+
+
+複数のスレッド間で状態を共有するには **排他制御**
+が必要です．これを行うために `Mutex` があります． `lock`
+メソッドでリソースをロックします． `lock` メソッドは `LockResult`
+型を返します．また， `LockResult` 型は RAII である `MutexGuard`
+オブジェクトを束縛しているので，自動でロックを解除します．
+
+
+``` 
+use std::sync::Mutex;
+
+fn main() {
+    let m = Mutex::new(5);
+
+    {
+        let mut num = m.lock().unwrap();
+        *num = 6;
+    }
+
+    println!("m = {:?}", m);
+}
+```
+
+
+排他制御を行う `Mutex`
+は出来ましたが，このオブジェクトをスレッド間で共有しなければなりません．所有権の共有は
+`Rc` で出来ますが，これのマルチスレッド版である `Arc` を使います．
+
+
+``` 
+use std::sync::Arc;
+
+fn main() {
+    let counter = Arc::new(Mutex::new(0));
+
+    for _ in 0..10 {
+        let counter = Arc::clone(&counter);
+        let handle = thread::spawn(move || {
+            let mut num = counter.lock().unwrap();
+            *num += 1;
+        });
+        ...
+```
+
+
+おや，またこの図が出てきました．
+
+![rust-onwership01](https://storage.googleapis.com/zenn-user-upload/ym0o15tj4kbs3tyrqqow30n9bp3h)
+
+マルチスレッド版の `Rc` である `Arc`，排他制御を行う `Mutex`
+の関係を表すと...
+
+![rust-arc](https://storage.googleapis.com/zenn-user-upload/qwzx4e8of0842gq6ul8drqegepmn)
+
+## 📌 Send + Sync
+
+マルチスレッドではオブジェクトの所有権の操作を考慮する必要があります．オブジェクトの所有権がスレッド間で移動できる場合は，
+`Send` マーカートレイトのインスタンスになります． **マーカートレイト**
+とは，メソッドを持たないトレイトのことで，トレイト境界に使うためのものです．
+`Sized`
+トレイトもマーカートレイトの１つです．次に，複数のスレッドから安全に参照できる場合は
+`Sync` マーカートレイトのインスタンスになります．これは参照 `&T` が
+`Send` ならば， `T` 型は `Sync`
+であり，参照が別のスレッドに送ることができるという意味になります．
+
+ほとんどのプリミティブ型は `Send+Sync` です．また， `Sync`
+であるデータ型で構成された型は，それもまた `Sync`
+です．これは自動的にそれぞれのインスタンスになります．これらを手動で実装するのは安全ではありません．マルチスレッドに対応していない
+`Rc` は `Send` でもなく， `Sync` でもありません（かわりに `!Send` や
+`!Sync` の非実装マーカートレイトがつきます）．それに対して， `Arc` は
+`Send+Sync` です．また， `Arc` が束縛する型もまた `Send+Sync`
+である必要があります．もし， `Send+Sync` でないなら， `Mutex`
+を利用します．
+
+次の図は `Rc` と `Arc`
+のドキュメントからの抜粋です．`Trait Implementations`
+にありますが，新規に定義したデータ型などは基本的に `Send` と `Sync`
+は自動的につくので `Auto Trait Implementations`
+で確認することが出来ます．
+
+![rust-send+sync-rc](https://storage.googleapis.com/zenn-user-upload/c3nzdj059wh9b5nwz0rwb8ww5z85)
+
+![rust-send+sync-arc](https://storage.googleapis.com/zenn-user-upload/s9b3xgu8sf6a9wu48ojlmu2wm3pb)
+
+## 📌 RwLock
+
+排他制御を行うのは `Mutex` 以外に `RwLock` があります． `Mutex`
+は常に１つのスレッドがリソースの操作をすることが出来ますが， `RwLock`
+の場合は，不変参照だけなら複数のスレッドが同時にリソースをロックすることができ，可変参照のときだけ，１つのスレッドに制限するものです．他にアトミック変数というのもあります．これはプリミティブ型のみしか扱えませんが，
+`Mutex` よりは高速に動作します．処理速度に問題がなければ基本的に `Mutex`
+を使うのがいいでしょう． `RwLock`
+やアトミック変数の詳細は公式リファレンスなどを参照してください．
+
+
+
+

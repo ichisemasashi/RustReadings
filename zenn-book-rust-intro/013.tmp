@@ -1,0 +1,223 @@
+# トレイト {#トレイト .View_chapterTitle__tslMs}
+
+## 📌 トレイトとは
+
+すでにトレイト，コピートレイト，トレイト境界について触れていますが，ここでさらに詳しく解説します．まずは，おさらいです．
+**トレイト**
+（trait）はデータ型を分類する仕組みのことです．また，ジェネリック型に
+**トレイト境界** を指定することで，その型が特定のトレイトの
+**インスタンス**
+であることを制約します．さらに，トレイトには特有のメソッドを実装することが出来，型に対して共通の振る舞いを定義することが出来ます．つまり，あるトレイトのメソッドは，そのインスタンスであれば呼び出せることになります．また，インスタンスによってその振る舞いの実装を変えることも出来ます．
+
+トレイトを定義するには `trait`
+を使います．トレイト名を指定して，ブロック内に共通のメソッドを定義します．このメソッドはインスタンス側で実装しなければなりませんが，トレイト側で実装することも出来ます．この場合は，インスタンス側はトレイト側の実装をそのまま使うことも出来ますし，その振る舞いを上書き（
+**オーバーライド** ）することも出来ます．
+
+
+``` 
+pub trait Geometry {
+    fn area(&self) -> f64;
+    fn name(&self) -> &str { return "Geometry" }
+}
+```
+
+
+トレイトの実装は `impl A for B` で指定します．ここで `A`
+にはトレイト名を， `B` には実装する型を指定します．
+
+
+``` 
+impl Geometry for Rectangle {
+    fn area(&self) -> f64 {
+        self.width as f64 * self.height as f64
+    }
+    fn name(&self) -> &str { return "Rectangle" }
+}
+```
+
+
+`Geometry` トレイトを定義して， `Rectangle`, `Triangle`
+というインスタンスを定義する場合は次のようになります．
+
+
+``` 
+pub trait Geometry {
+    fn area(&self) -> f64;
+    fn name(&self) -> &str { return "Geometry" }
+}
+
+struct Rectangle { width: u32, height: u32 }
+
+impl Geometry for Rectangle {
+    fn area(&self) -> f64 {
+        self.width as f64 * self.height as f64
+    }
+    fn name(&self) -> &str { return "Rectangle" }
+}
+
+struct Triangle { bottom: u32, height: u32 }
+
+impl Geometry for Triangle {
+    fn area(&self) -> f64 {
+        self.bottom as f64 * self.height as f64 * 0.5
+    }
+    fn name(&self) -> &str { return "Triangle" }
+}
+
+fn main() {
+    let a = Rectangle { width: 10, height: 20 };
+    let b = Triangle  { bottom: 20, height: 5 };
+    println!("{} area={}", a.name(), a.area());
+    println!("{} area={}", b.name(), b.area());
+}
+```
+
+
+## 📌 トレイト継承
+
+トレイトは別のトレイトのインスタンスになることが出来ます．これを
+**継承** と呼ぶこともあります． `trait 継承先 : 継承元`
+という形で指定します．継承したインスタンスは継承元のトレイトも実装する必要があります．
+
+
+``` 
+pub trait Geometry {
+    ...
+}
+
+pub trait Drawable: Geometry {
+    ...
+}
+
+impl Geometry for Rectangle {
+    ...
+}
+
+impl Drawable for Rectangle {
+    ...
+}
+```
+
+
+トレイトのインスタンスを表すには `impl A` のようにします． `A`
+はトレイト名です．次の関数の引数 `geometry` は `Geometry`
+のインスタンスでなければなりません．これがトレイト境界です．
+
+
+``` 
+fn draw(geometry: &impl Geometry) {
+    ...
+}
+```
+
+
+トレイト境界の指定はより便利な方法があります：
+
+
+``` 
+fn draw<T: Geometry>(geom1: &T, geom2: &T) {
+    ...
+}
+```
+
+
+また，トレイトは `+` を使って複数指定することが出来ます：
+
+
+``` 
+fn draw(geometry: &(impl Geometry + Display))
+fn draw<T: Geometry + Display>(geometry: &T)
+```
+
+
+他にも `where` を使って次のように書くことも出来ます：
+
+
+``` 
+fn draw<T>(geometry: &T)
+    where T: Summary + Display
+```
+
+
+ジェネリック型にもトレイト境界を指定することが出来ます．次のコードでは，
+`Display` と `PartialOrd` のインスタンスの場合なら， `cmd_display`
+メソッドが実装されます．
+
+
+``` 
+use std::fmt::Display;
+
+struct Pair<T> { x: T, y: T }
+
+impl<T> Pair<T> {
+    fn new(x: T, y: T) -> Self {
+        Self { x, y }
+    }
+}
+
+impl<T: Display + PartialOrd> Pair<T> {
+    fn cmp_display(&self) {
+        if self.x >= self.y {
+            println!("The largest member is x = {}", self.x);
+        } else {
+            println!("The largest member is y = {}", self.y);
+        }
+    }
+}
+```
+
+
+## 📌 derive属性
+
+これまでいくつかのトレイトを見てきました．実際には多くのトレイトがあり，そして，型は多くのトレイトのインスタンスになっています．トレイトのインスタンスにするには
+`impl`
+で実装しなければならず，とても面倒です．そこで，規定の実装をしてくれる機能が用意されています．それが
+`derive` 属性です．実装したいトレイトを型の定義時に
+`#[derive(trait, …)]` という形で指定します．
+
+
+``` 
+#[derive(Debug, Copy, Clone)]
+pub struct Vec3 {
+```
+
+
+以下は `derive` 属性でよく使われるものです：
+
+  属性              説明
+  ----------------- ---------------------------------------------------------
+  Copy              所有権の移動をせずに，複製を作成するマーカートレイト
+  Clone             オブジェクトの複製（ディープコピー）を作成できる
+  Debug             `{:?}` で出力できる
+  PartialEq, Eq     `==`, `!=` が使える．Eq はマーカートレイト．
+  PartialOrd, Ord   `<`, `>`, `<=`, `>=` が使える．Ord は順序付けができる．
+
+## 📌 From トレイト
+
+ある型から別の型に変換するときに，便利な `From`
+トレイトというのがあります． `from`
+メソッドを対応した型ごとに実装することで，その型から `into`
+メソッドで変換することが出来ます．
+
+
+``` 
+#[derive(Debug)]
+struct Point { x: f64, y: f64 }
+
+impl From<f64> for Point {
+    fn from(input: f64) -> Self {
+        Point { x: input, y: input }
+    }
+}
+
+fn main() {
+    let p1 = Point::from(1.0);
+    let p2: Point = (1.0).into();
+    println!("{:?} {:?}", p1, p2);
+}
+```
+
+
+
+
+
