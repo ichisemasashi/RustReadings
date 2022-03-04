@@ -1,0 +1,129 @@
+\subsection{Rust プログラムの基本的な構造を理解する}
+
+このユニットでは、簡単な Rust プログラムがどのような構造になっているかを確認します。
+
+\subsubsection{Rust の関数}
+
+関数は、特定のタスクを実行するコードのブロックです。 プログラム内のコードをタスクに基づいてブロックに分割します。 この分割により、コードの理解と保守が容易になります。 タスクの関数を定義したら、そのタスクを実行する必要があるときに関数を呼び出すことができます。
+
+すべての Rust プログラムには、 という名前の関数が 1 つ必要です。 \texttt{main} 関数内のコードは、常に、Rust プログラムで最初に実行されるコードです。 \texttt{main} 関数内または他の関数内から他の関数を呼び出すことができます。
+
+
+
+\begin{lstlisting}[numbers=none]
+fn main() {
+    println!("Hello, world!");
+}
+\end{lstlisting}
+
+Rust 内で関数を宣言するには、\texttt{fn} キーワードを使用します。 関数名の後に、関数が入力として受け取るパラメーターまたは "引数" の数をコンパイラに指示します。 引数は、かっこ \texttt{()} 内に列記します。 "関数の本体" は、関数のタスクを実行するコードであり、中かっこ 内で定義します。 関数本体の左中かっこがかっこで囲まれた引数リストの直後に位置するようにコードを書式設定することをお勧めします。
+
+\subsubsection{コード インデント}
+
+関数本体では、ほとんどのコード ステートメントはセミコロン \texttt{;} で終わります。 Rust により、これらのステートメントが 1 つずつ順番に処理されます。 コード ステートメントがセミコロンで終わらない場合、Rust では、開始ステートメントが完了する前に次のコード行を実行する必要があることが認識されます。
+
+コード内の実行関係を確認できるように、インデントを使用します。 この形式により、コードがどのように整理されているかが示され、関数タスクを完了するためのステップの流れが明らかになります。 開始コード ステートメントは、左余白からスペース 4 つ分インデントされます。 コードがセミコロンで終わっていない場合、実行する次のコード行は、さらにスペース 4 つ分インデントされます。
+
+次に例を示します。
+
+\begin{lstlisting}[numbers=none]
+fn main() { // The function declaration is not indented
+
+    // First step in function body
+        // Substep: execute before First step can be complete
+
+    // Second step in function body
+        // Substep A: execute before Second step can be complete
+        // Substep B: execute before Second step can be complete
+            // Sub-substep 1: execute before Substep B can be complete
+
+    // Third step in function body, and so on...
+}
+\end{lstlisting}
+
+\subsubsection{todo! マクロ}
+
+
+Rust モジュールの演習を行っていると、サンプル コードで \texttt{todo!} マクロが頻繁に使われていることに気付きます。 Rust のマクロは、可変個の入力引数を受け取る関数のようなものです。 \texttt{todo!} マクロは、Rust プログラムで未完了のコードを識別するために使用されます。 このマクロは、プロトタイプを作成するときや、完了していない動作を示す場合に便利です。
+
+演習での \texttt{todo!} マクロの使用方法の例を次に示します。
+
+
+
+\begin{lstlisting}[numbers=none]
+fn main() {
+    // Display the message "Hello, world!"
+    todo!("Display the message by using the println!() macro");
+}
+\end{lstlisting}
+
+\texttt{todo!} マクロを使用するコードをコンパイルすると、完了した機能を見つけることが想定されている場所で、コンパイラからパニック メッセージが返されることがあります。
+
+\begin{lstlisting}[numbers=none]
+   Compiling playground v0.0.1 (/playground)
+    Finished dev [unoptimized + debuginfo] target(s) in 1.50s
+     Running `target/debug/playground`
+thread 'main' panicked at 'not yet implemented:\\
+ Display the message by using the println!() macro', src/main.rs:3:5
+note: run with `RUST_BACKTRACE=1` environment variable\\
+ to display a backtrace
+\end{lstlisting}
+
+\subsubsection{println! マクロ}
+
+\texttt{main} 関数では 1 つのタスクが実行されます。 これにより、Rust 内に事前定義されている \texttt{println!} マクロが呼び出されます。 \texttt{println!} マクロには、画面または "\texttt{println!}" に表示される 1 つ以上の入力引数が必要です。 この例では、マクロに 1 つの入力引数 (テキスト文字列 "Hello, world!") を渡します。
+
+\subsubsection{\{\} 引数の値の置換}
+
+Rust Learn モジュールのレッスンでは、多くの場合、中かっこ \texttt{\{\}} とその他の値のインスタンスが含まれるテキスト文字列を含む引数のリストを指定して \texttt{println!} マクロを呼び出します。 \texttt{println!} マクロにより、テキスト文字列内の中かっこ \texttt{\{\}} の各インスタンスが、リスト内の次の引数の値に置き換えられます。
+
+次に例を示します。
+
+\begin{lstlisting}[numbers=none]
+fn main() {
+    // Call println! with three arguments: a string, a value, a value
+    println!("The first letter of the English alphabet is\\
+     {} and the last letter is {}.", 'A', 'Z');
+}
+\end{lstlisting}
+
+\texttt{println!} マクロは、文字列、値、および別の値の 3 つの引数を指定して呼び出します。 マクロにより、引数が順番に処理されます。 テキスト文字列内の中かっこ \texttt{\{\}} の各インスタンスは、リスト内の次の引数の値に置き換えられます。
+
+出力は次のようになります。
+
+\begin{lstlisting}[numbers=none]
+The first letter of the English alphabet is A and the last letter is Z.
+\end{lstlisting}
+
+\subsubsection{自分の知識をチェックする}
+
+次の質問に答えて、学習した内容を確認してください。
+
+\begin{enumerate}
+\item Rust プログラムでは、main 関数をいくつ使用できますか?
+\begin{itemize}
+\item Rust プログラムでは、必要なだけいくつでも main 関数を使用できる。
+\item Rust のすべての関数で、main という名前のサブ関数を使用できる。
+\item すべての Rust プログラムは、main という名前の関数を 1 つだけ持つ必要がある。
+\end{itemize}
+
+\item 新しい関数を宣言するために使用する Rust キーワードは何ですか?
+\begin{itemize}
+\item function
+\item fn
+\item func
+\end{itemize}
+
+\item println! マクロのこの呼び出しからの出力はどれですか?
+
+\texttt{println!("\{\} is a number. \{\} is a word.", 1, "Two");}
+\begin{itemize}
+\item 1 は数値です。 Two is a word.
+\item \{\} は数値です。 \{\} is a word.
+\item \{1\} は数値です。 \{"Two"\} is a word.
+\end{itemize}
+
+\end{enumerate}
+
+
+
