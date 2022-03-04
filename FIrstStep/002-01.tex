@@ -1,55 +1,17 @@
-\subsection{Visual Studio Code のインストール}
+\subsection{はじめに}
 
+このユニットでは、Rust でのプログラミングを開始できるよう、開発環境をインストールして構成する手順について説明します。
 
-Rust 開発の志望者は、Rust ソース コードをテキスト ファイルに書き込む必要があります。
+Rust でプログラミングするには、Visual Studio Code エディター、Visual Studio Code 用 Microsoft C++ ビルド ツール、Rust 言語ファイルをインストールします。
 
-Rust ソース ファイルは、ファイル拡張子が .rs のテキスト ファイルであり、すべての Rust コードをその中に入力します。 コードをテキスト ファイルに保存した後、Rust コンパイラ (\texttt{rustc}) または Cargo を使用してコードをプログラムにコンパイルします。
+環境を設定したら、基本的な "Hello World!" プログラムを試して、 次に進む準備ができたかを確認します。
 
-\subsubsection{Rust コードを記述するためのツール}
+\subsubsection{学習の目的}
 
-通常は、Rust 構文をテキスト ファイルに記述し、それをローカル ハード ドライブに保存します。 Windows のメモ帳のような簡単なテキスト ファイル エディターを使用して、コードを記述することができます。 メモ帳を使用して、標準のテキスト ファイル形式である ASCII テキストを編集できます。
+このモジュールでは、次の方法を学習します。
 
-\begin{itembox}[l]{ヒント}
-太字、下線、斜体などの書式設定オプションがあるテキスト エディターや、文書処理機能を備えたその他のプログラムは使用しないようにしてください。 たとえば、Microsoft Word や macOS の TextEdit でコードを記述しないでください。 これらのプログラムには、Rust コンパイラによって認識されない追加の書式設定命令が含まれています。
-\end{itembox}
-
-テキスト エディターを使用することもできますが、コードの記述に固有の課題に適したツールを使用することをお勧めします。 さまざまなオプションがありますが、多くの開発者はこの目的に Visual Studio Code を利用します。 Visual Studio Code は無料で、Windows、macOS、Linux で使用できます。 使用するプログラミング言語に関係なく、コード間を簡単に移動できる機能が多数用意されています。
-
-お使いのオペレーティング システムに応じて、次のいずれかのインストール手順を選択してください。
-
-\subsubsection{macOS に Visual Studio Code をインストールする}
-
-ここでは、Visual Studio Code をダウンロードしてインストールする方法を説明します。
-
-\paragraph{手順 1 - Visual Studio Code をダウンロードする}
-
-Visual Studio Code のダウンロード ページにアクセスします。
-
-Web ページに、Windows、Linux、および Mac のロゴが表示されます。 Mac バージョンをダウンロードします。 ほとんどのブラウザーでは、ローカル コンピューター (通常は [ダウンロード] フォルダー) にファイルを保存するか、ファイルをすぐに実行するかを選択できます。
-
-次の手順で説明するように、ファイルを開く前に、[アプリケーション] フォルダーにファイルを移動します。
-
-\paragraph{手順 2 - [ダウンロード] フォルダーから [アプリケーション] フォルダーにアプリを移動する}
-
-Finder を開きます。 Dock の [ダウンロード] スタックから、Finder の [アプリケーション] フォルダーに、Visual Studio Code ファイルをドラッグします。
-
-\paragraph{手順 3 - [アプリケーション] フォルダーから Visual Studio Code を開始する}
-
-[アプリケーション] フォルダーで Visual Studio Code アプリをダブルクリックします。
-
-\begin{itembox}[l]{注意}
-Apple で悪意のあるソフトウェアかどうかを確認できないため Visual Studio Code を開くことができないという警告が表示される場合があります。 その場合は、[OK] を選択してメッセージを無視します。 次に、[アプリケーション] フォルダーで [Visual Studio Code] を右クリックし、[Open](開く) メニューを選択します。 このオプションを選択した場合、以降は問題なしに Visual Studio Code が開かれるはずです。
-\end{itembox}
-
-\subsubsection{自分の知識をチェックする}
-
-次の質問に答えて、学習した内容を確認してください。
-
-\begin{enumerate}
-\item Rust プログラムのコンパイルに使用できる 2 つの方法は?
 \begin{itemize}
-\item \texttt{compile} と \texttt{rustc}
-\item \texttt{build} と \texttt{rustc}
-\item Cargo と \texttt{rustc}
+Rust を使用するように開発環境を設定します。
+基本的な "Hello World!" をコンパイルして実行します 作成します。
+Rust のビルド ツールであり、依存関係マネージャーである Cargo を使用します。
 \end{itemize}
-\end{enumerate}
