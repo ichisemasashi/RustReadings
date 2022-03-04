@@ -1,0 +1,109 @@
+\subsection{演習: Hello World}
+
+Rust がインストールされていれば、コーディングを開始する準備ができています。 "Hello, world!" を出力するプログラムを作成しましょう。 コンソールに表示します。
+
+\subsubsection{コードを整理するための新しいディレクトリを作成する}
+
+このラーニング パス (\texttt{rust-learning-path}) のすべてのコードを格納するディレクトリを作成することから始め、その後、この演習のソース コードを保存するための新しいサブディレクトリを作成します。
+
+Linux、macOS、および Windows 上の PowerShell の場合は、次のコマンドを実行します。
+
+\begin{lstlisting}[numbers=none]
+mkdir ~/rust-learning-path
+cd ~/rust-learning-path
+mkdir hello-world
+cd hello-world
+\end{lstlisting}
+
+\subsubsection{最初の Rust プログラムを記述する}
+
+次に、\texttt{main.rs} という名前の新しいファイルを作成し、エディターを使用して次のコードを記述します。
+
+\begin{lstlisting}[numbers=none]
+fn main() {
+    println!("Hello, world!");
+}
+\end{lstlisting}
+
+\subsubsection{プログラムをコンパイルして実行する}
+
+ソース コードの準備ができました。 次に、プログラムをコンパイルして実行可能ファイルを作成します。 ターミナル ウィンドウに戻り、次のコマンドを入力して、ファイルをコンパイルして実行します。
+
+Linux または macOS を使用している場合は、次のコマンドを実行します。
+
+
+\begin{lstlisting}[numbers=none]
+rustc main.rs
+./main
+\end{lstlisting}
+
+次の出力が表示されます。
+
+\begin{lstlisting}[numbers=none]
+Hello, world!
+\end{lstlisting}
+
+\subsubsection{Cargo を使用してプロジェクトを作成する}
+
+ここで、Cargo を使用して、同じプログラムを記述して実行しましょう。
+
+\begin{itembox}[l]{注意}
+次のセクションのコマンドはすべてのプラットフォームで動作します。
+\end{itembox}
+
+まず、Cargo を使用して新しいプロジェクトを作成します。
+
+ターミナルが \texttt{rust-learning-path} ディレクトリにあることを確認し、次のコマンドを実行します。
+
+
+\begin{lstlisting}[numbers=none]
+cargo new hello-cargo
+\end{lstlisting}
+
+このコマンドにより、hello-cargo という名前の新しいディレクトリが src サブディレクトリと共に生成され、次の 2 つのファイルが追加されます。
+
+\begin{lstlisting}[numbers=none]
+hello-cargo/
+     Cargo.toml
+     src/
+         main.rs
+\end{lstlisting}
+
+\begin{itemize}
+\item Cargo.toml ファイルは、Rust のマニフェスト ファイルです。 プロジェクトのメタデータとすべての依存関係をここに保存します。
+\item src サブディレクトリの main.rs ファイルは、アプリケーション コードを記述する場所です。
+\end{itemize}
+
+\texttt{cargo new} コマンドによって、"Hello, world!" という定型句が 生成されました。
+
+\subsubsection{Cargo を使用してプログラムをビルドして実行する}
+
+この定型プログラムを実行するには、新しいディレクトリ hello-cargo に移動し、\texttt{cargo run} コマンドを使用します。
+
+ターミナルで次のコマンドを実行します。
+
+
+\begin{lstlisting}[numbers=none]
+cd hello-cargo
+cargo run
+\end{lstlisting}
+
+次のような出力がターミナルに表示されます。
+
+\begin{lstlisting}[numbers=none]
+  Compiling hello-cargo v0.1.0 (/tmp/.OFUp/hello-cargo)
+    Finished dev [unoptimized + debuginfo] target(s) in 1.59s
+      Running `target/debug/hello-cargo`
+
+Hello, world!
+\end{lstlisting}
+
+Cargo により、実行可能ファイルがビルドされ、実行されました。
+
+お疲れさまでした。これで最初の Rust プログラムを記述し、Cargo を使用して最初の Rust プロジェクトを初期化する方法を学習しました。
+
+
+
+
+
+
