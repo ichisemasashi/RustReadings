@@ -1,0 +1,82 @@
+\subsection{Rust をインストールする}
+
+Rust をインストールするために推奨される方法は、Rust ツールチェーン インストーラーの \texttt{rustup} を使用することです。 Web サイト rustup.rs にアクセスして、お使いのオペレーティング システムに合った手順を見つけてください。
+
+\includegraphics[width=10cm]{rustup.eps}
+
+Linux または macOS 上では、クリップボード アイコンを選択して curl コマンドをコピーします。 次に、コンピューターのターミナルまたはコマンド プロンプトを開いてコマンドを貼り付け、画面の指示に従います。 Windows 上では、インストーラーの指示に従います。
+
+\begin{itembox}[l]{重要}
+Rust には、Visual Studio 2013 以降の Microsoft C++ ビルド ツールが必要です。 Rust をインストールするには、事前にビルド ツールがインストールされている必要があります。 ビルド ツールをインストールする必要がある場合は、前のユニットの手順を参照してください。
+\end{itembox}
+
+Rust のラピッド リリース プロセスは 6 週間ごとに実行されます。非常に多くのプラットフォームがサポートされているので、任意の時点で利用できる Rust のビルドは多数存在します。 \texttt{rustup} を以前にインストールしたことがある場合は、\texttt{rustup update} コマンドを実行することで、Rust の最新の安定バージョンに更新できます。
+
+\subsubsection{Rust のインストールを確認する}
+
+Rust のインストールを完了したら、\texttt{rustc} コマンドと \texttt{cargo} コマンドを使用できるようになります。
+
+\begin{itembox}[l]{注意}
+次のコマンドはすべてのプラットフォームで動作します。
+\end{itembox}
+
+ターミナルまたはコマンド プロンプトで、次のコマンドを実行します。
+
+
+\begin{lstlisting}[numbers=none]
+rustc --version
+\end{lstlisting}
+
+この例のような出力になるはずです。
+
+\begin{lstlisting}[numbers=none]
+rustc 1.50.0 (cb75ad5db 2021-02-10)
+\end{lstlisting}
+
+次に、次のコマンドを実行します。
+
+\begin{lstlisting}[numbers=none]
+cargo --version
+\end{lstlisting}
+
+次のような出力が表示されます。
+
+\begin{lstlisting}[numbers=none]
+cargo 1.50.0 (f04e7fab7 2021-02-04)
+\end{lstlisting}
+
+いずれの出力行にも、利用可能な Rust と Cargo の最新の安定したバージョンに関する次の情報が含まれます。
+
+\begin{itemize}
+\item リリース番号
+\item コミット ハッシュ
+\item コミットの日付
+\end{itemize}
+
+この情報は次の形式で表示されます。
+
+\texttt{<executable-name> <three-part-release-number> (<9-character-hash-code> <4-digit-year>-<2-digit-month>-<2-digit-day>)}
+
+この種類の出力が表示された場合、両方のインストールが成功しました。 この情報が表示されない場合、\texttt{PATH} 環境変数を確認してください。 \texttt{rustc.exe} と \texttt{cargo.exe} という実行可能ファイルが入っているフォルダーが必ず含まれるようにしてください。
+
+\subsubsection{自分の知識をチェックする}
+
+次の質問に答えて、学習した内容を確認してください。
+
+\begin{enumerate}
+\item Rust のインストールに使用するために推奨されているコマンドは何ですか?
+
+\begin{itemize}
+\item rinstall
+\item rustup
+\item rupdate
+\end{itemize}
+
+\item Rust ライブラリはどのくらいの頻度で更新されますか?
+\begin{itemize}
+\item 6 か月ごと
+\item 3 か月ごと
+\item 6 週間ごと
+\end{itemize}
+\end{enumerate}
+
