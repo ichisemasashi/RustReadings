@@ -1,0 +1,133 @@
+\subsection{Rust で変数を作成して使用する}
+
+開発者は、データを操作するコンピューター プログラムを記述します。 データの収集、分析、保存、処理、共有、報告が行われます。 "変数" を使用して、コード内で後で参照できる名前付き参照にデータを格納します。
+
+\subsubsection{変数}
+
+Rust では、変数はキーワード \texttt{let} を使用して宣言されます。 各変数には一意の名前が付いています。 変数が宣言されている場合は、値にバインドできます。また、後でプログラム内で値をバインドすることもできます。 次のコードでは、 \texttt{a\_number} という名前の変数を宣言しています。
+
+\begin{lstlisting}[numbers=none]
+let a_number;
+\end{lstlisting}
+
+\texttt{a\_number} 変数はまだ値にバインドされていません。 このステートメントを変更して、値を変数にバインドできます。
+
+\begin{lstlisting}[numbers=none]
+let a_number = 10;
+\end{lstlisting}
+
+\begin{itembox}[l]{注意}
+キーワード: 他のプログラミング言語と同様に、 や などの特定の "キーワード" は、Rust のみが使用するために予約されています。 キーワードを関数または変数の名前として使用することはできません。
+\end{itembox}
+
+別の例を見てみましょう。 次のコードでは、2 つの変数が宣言されています。 最初の変数は宣言されていますが、値にバインドされていません。 2 番目の変数は宣言されており、値にバインドされています。 プログラムの後の部分で最初の変数の値は、単語にバインドされています。 コードでは、変数の値を表示する \texttt{println!} マクロが呼び出されます。
+
+
+\begin{lstlisting}[numbers=none]
+// 変数の宣言
+let a_number;
+    
+// 2つ目の変数を宣言し、値をバインドする
+let a_word = "Ten";
+    
+// 最初の変数に値をバインドする
+a_number = 10;
+
+println!("The number is {}.", a_number);
+println!("The word is {}.", a_word);
+\end{lstlisting}
+
+この例では、次の出力が出力されます。
+
+\begin{lstlisting}[numbers=none]
+The number is 10.
+The word is Ten.
+\end{lstlisting}
+
+\texttt{println!} マクロを呼び出して、 \texttt{a\_number} 変数の値をバインド前に表示しようとすると、コンパイラからエラーが返されます。
+
+このエラー メッセージは自分で、Rust Playground で確認できます。 [実行] ボタンを選択して、コードを実行します。
+
+\subsubsection{不変と変更可能}
+
+Rust では、変数バインドは既定で変更できません。 変数が不変の場合、値が名前にバインドされた後に、その値を変更することはできません。
+
+たとえば、前の例の \texttt{a\_number} 変数の値を変更しようとした場合、コンパイラからエラー メッセージを受け取ります。
+
+
+\begin{lstlisting}[numbers=none]
+// 不変型変数の値を変更する
+a_number = 15;
+\end{lstlisting}
+
+Rust プレイグラウンドでこの変更を自分で試してみて、エラー メッセージを確認できます。
+
+値を変更するには、まず \texttt{mut} キーワードを使用して、変数バインドを変更可能にする必要があります。
+
+\begin{lstlisting}[numbers=none]
+// `mut` キーワードは、変数を変更するためのものです。
+let mut a_number = 10; 
+println!("The number is {}.", a_number);
+
+// 不変型変数の値を変更する
+a_number = 15;
+println!("Now the number is {}.", a_number);
+\end{lstlisting}
+
+この例では、次の出力が出力されます。
+
+\begin{lstlisting}[numbers=none]
+The number is 10.
+Now the number is 15.
+\end{lstlisting}
+
+このコードは、変数 \texttt{a\_number} が変更可能になったため、エラーなくコンパイルされます。
+
+\subsubsection{変数のシャドウ処理}
+
+既存の変数の名前を使用する新しい変数を宣言できます。 新しい宣言によって新しいバインドが作成されます。 Rust では、新しい変数によって、前の変数がシャドウされるため、この操作は "シャドウ処理" と呼ばれます。 古い変数は引き続き存在していますが、このスコープでは参照できなくなります。
+
+シャドウ処理を使用したコードの例を次に示します。 \texttt{shadow\_num} という名前の変数を宣言します。 変数は変更可能として定義しません。各 \texttt{let} 操作では、前の変数のバインドをシャドウ処理するときに \texttt{shadow\_num} という新しい変数が作成されるためです。
+
+
+\begin{lstlisting}[numbers=none]
+// 最初の変数バインディングを名前 "shadow_num" で宣言します。
+let shadow_num = 5;
+
+// 2つ目の変数バインディングを宣言し、既存の変数 "shadow_num" をシャドウします。
+let shadow_num = shadow_num + 5; 
+
+// 3つ目の変数バインディングを宣言し、変数 "shadow_num" の
+// 2つ目のバインディングをシャドウする。
+let shadow_num = shadow_num * 2; 
+
+println!("The number is {}.", shadow_num);
+\end{lstlisting}
+
+出力を推測できますか? Rust Playground にアクセスしてこの例を実行してください。
+
+\subsubsection{自分の知識をチェックする}
+
+次の質問に答えて、学習した内容を確認してください。 
+
+
+\begin{enumerate}
+\item 変数の宣言と値のバインドの両方が行われている Rust ステートメントはどれですか?
+\begin{itemize}
+\item \texttt{let continents = 7;}
+
+\item \texttt{continents = 7;}
+
+\item \texttt{let continents;}
+\end{itemize}
+
+
+変数の値を変更可能にするために使用される Rust キーワードはどれですか?
+\begin{itemize}
+\item \texttt{mutable}
+
+\item \texttt{immutable}
+
+\item \texttt{mut}
+\end{itemize}
+\end{enumerate}
