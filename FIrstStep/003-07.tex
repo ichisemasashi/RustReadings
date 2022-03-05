@@ -1,0 +1,106 @@
+\subsection{Rust で関数を操作する}
+
+関数は、Rust 内でコードを実行する主要な方法です。 この言語で、最も重要な関数の 1 つは既に見た \texttt{main} 関数です。 このユニットでは、関数を定義する方法を詳細に説明します。
+
+\subsubsection{関数を定義する}
+
+Rust での関数定義は、\texttt{fn} キーワードで始まります。 関数名の後に、関数の入力引数を、かっこ内のデータ型のコンマ区切りリストとして指定します。 中かっこは、関数本体の開始と終了の位置をコンパイラに伝えます。
+
+
+\begin{lstlisting}[numbers=none]
+fn main() {
+    println!("Hello, world!");
+    goodbye();
+}
+
+fn goodbye() {
+    println!("Goodbye.");
+}
+\end{lstlisting}
+
+関数を呼び出すには、その名前をかっこ内の入力引数と共に使用します。 関数に入力引数が存在しない場合は、かっこを空のままにします。 この例では、 \texttt{main} と \texttt{goodbye} の両方の関数に入力引数がありません。
+
+\texttt{main} 関数の後に \texttt{goodbye} 関数が定義されていることにお気付きかと思います。 \texttt{goodbye} 関数は、 \texttt{main} を定義する前に定義しました。 Rust では、関数がファイル内のどこかに定義されている限り、ファイル内のどこに定義されているかは留意されません。
+
+\subsubsection{入力引数を渡す}
+
+関数に入力引数がある場合は、各引数に名前を付け、関数宣言の最初にデータ型を指定します。 引数には変数のように名前が付けられているので、関数本体内で引数にアクセスできます。
+
+\texttt{goodbye} 関数を変更し、入力引数として文字列データへのポインターを受け取るようにしてみましょう。
+
+\begin{lstlisting}[numbers=none]
+fn goodbye(message: &str) {
+    println!("\n{}", message);
+}
+
+fn main() {
+    let formal = "Formal: Good bye.";
+    let casual = "Casual: See you later!";
+    goodbye(formal);
+    goodbye(casual);
+}
+\end{lstlisting}
+
+2 つの異なる引数値を使用して \texttt{main} 関数からこの関数を呼び出すことでテストし、出力を調べます。
+
+\begin{lstlisting}[numbers=none]
+Formal: Good bye.
+Casual: See you later!
+\end{lstlisting}
+
+\subsubsection{値を返す}
+
+関数が値を返す場合は、関数の引数のリストの後、関数本体の左中かっこの前に構文 \texttt{-> <type>} を追加します。 矢印の構文 \texttt{->} は、関数から呼び出し元に値が返されることを示します。 コンパイラは、\texttt{<type>} の部分により、返された値のデータ型を知ることができます。
+
+Rust での一般的な方法では、関数の最後のコード行を返す値と同じにすることで、関数の終了時に値を返します。 この動作の例を次に示します。 \texttt{divide\_by\_5} 関数からは、入力値を 5 で割った結果が呼び出し元の関数に返されます。
+
+\begin{lstlisting}[numbers=none]
+fn divide_by_5(num: u32) -> u32 {
+    num / 5
+}
+
+fn main() {
+    let num = 25;
+    println!("{} divided by 5 = {}", num, divide_by_5(num));
+}
+\end{lstlisting}
+
+出力は次のようになります。
+
+\begin{lstlisting}[numbers=none]
+25 divided by 5 = 5
+\end{lstlisting}
+
+関数内の任意の場所で \texttt{return} キーワードを使って、実行を停止し、呼び出し元に値を返すことができます。 通常、 \texttt{return} キーワードは、条件テストと組み合わせて使います。
+
+次に、 \texttt{num} の値が 0 の場合は \texttt{return} キーワードを明示的に使用して関数から早期に戻る例を示します。
+
+\begin{lstlisting}[numbers=none]
+fn divide_by_5(num: u32) -> u32 {
+    if num == 0 {
+        // Return early
+        return 0;
+    }
+    num / 5
+}
+\end{lstlisting}
+
+\texttt{return} キーワードを明示的に使用する場合は、セミコロンでステートメントを終了します。 \texttt{return} キーワードを使用せずに戻り値を返す場合は、ステートメントをセミコロンで終了しないでください。 戻り値 \texttt{num / 5} のステートメントで、最後にセミコロンを使用しなかったことに気付かれたかもしれません。
+
+\subsubsection{シグネチャを確認する}
+
+関数の宣言の最初の部分は、"関数シグネチャ" と呼ばれます。
+
+この例の \texttt{goodbye} 関数のシグネチャには、これらの特性があります。
+
+\begin{itemize}
+\item \texttt{fn}: Rust の関数宣言キーワード。
+\item \texttt{goodbye}: 関数名。
+\item \texttt{(message: \&str)}: 関数の引数または "\texttt{(message: \&str)}" リスト。 入力値としては、文字列データへの 1 つのポインターが必要です。
+\item \texttt{-> bool}: 矢印は、この関数が常に返す値の型を指しています。
+\end{itemize}
+
+\texttt{goodbye} 関数は、入力として 1 つの文字列ポインターを受け取り、ブール値を出力します。
+
+この Rust Playground 内で、コード例を操作できます。
+

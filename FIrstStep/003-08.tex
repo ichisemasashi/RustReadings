@@ -1,0 +1,158 @@
+\subsection{演習: 車を作成する関数を記述する}
+
+この演習では、列挙型、構造体、および関数を使用して、新車の注文を処理します。 課題は、コンパイルして実行できるようにサンプル コードを修正することです。
+
+この演習用のサンプル コードを操作するには、次の 2 つの方法があります。
+
+\begin{itemize}
+\item コードをコピーし、ローカルの開発環境で編集します。
+\item 準備済みの Rust Playground 内でコードを開きます。
+\end{itemize}
+
+\begin{itembox}[l]{注意}
+サンプル コードで、\texttt{todo!} マクロを探します。 このマクロは、完了または更新する必要があるコードを示しています。
+\end{itembox}
+
+\subsubsection{列挙型の定義}
+
+最初のタスクでは、列挙型の定義で構文の問題を修正して、コードをコンパイルします。
+
+\begin{enumerate}
+
+\item サンプル コードの最初のブロックを開きます。
+
+次のコードをコピーしてローカルの開発環境で編集するか、この用意されている Rust プレイグラウンドでコードを開きます。
+
+
+\begin{lstlisting}[numbers=none]
+// Car構造体を宣言し、4つの名前付きフィールドで車両を記述する。
+struct Car {
+    color: String,
+    transmission: Transmission,
+    convertible: bool,
+    mileage: u32,
+}
+
+#[derive(PartialEq, Debug)]
+// Carトランスミッションの種類を表すenumを宣言
+enum Transmission {
+    // todo!("Fix enum definition so code compiles");
+    Manual;
+    SemiAuto;
+    Automatic;
+}
+\end{lstlisting}
+
+\item プログラムが正常にコンパイルされるように、 \texttt{Transmission} 列挙型内の構文エラーを修正します。
+
+次のセクションに進む前に、コードがコンパイルされることを確認してください。 コードではまだ出力は表示されませんが、エラーなしでコンパイルされる必要があります。
+
+コンパイラからの "警告" メッセージは無視してかまいません。 警告は、列挙型と構造体の定義を宣言したものの、これらをまだ使用していないことが原因で生成されます。
+
+\end{enumerate}
+
+\subsubsection{構造体のインスタンス化}
+
+次に、 \texttt{car\_factory} 関数のコードを追加して、 \texttt{Car} 構造体のインスタンスを作成します。 入力引数の値を使用して、自動車の特性を割り当てます。
+
+\begin{enumerate}
+\item 既存のコードに次のコード ブロックを追加します。 新しいコードは、ファイルの先頭または末尾に追加できます。
+
+
+\begin{lstlisting}[numbers=none]
+// 入力引数の値を使って「クルマ」を作る
+// - Color of car (String)
+// - Transmission type (enum value)
+// - Convertible (boolean, true if car is a convertible)
+fn car_factory(color: String, transmission: Transmission, convertible: bool) {
+
+    // 入力された引数の値を使用する
+    // すべての新車は常に走行距離ゼロ
+    let car: Car = todo!("Create an instance of a `Car` struct");
+}
+\end{lstlisting}
+
+\item コードをリビルドし、コンパイルされることを確認します。 ここでも、警告メッセージはすべて無視してかまいません。
+
+\item \texttt{car} 変数の宣言を完了して、"Car" 構造体のインスタンスを作成します。 新車では、関数に渡された入力引数の値を使用する必要があります。 すべての新車の走行距離はゼロです。
+
+\begin{itembox}[l]{ヒント}
+ステートメントを型宣言 \texttt{let car: Car} からインスタンス化 \texttt{let car = Car \{ ... \}} に変更する必要があります。
+\end{itembox}
+
+\item コードをリビルドし、コンパイルされることを確認します。
+\end{enumerate}
+
+\subsubsection{関数から値を返す}
+
+ここで、作成された \texttt{Car} 構造体を返すように \texttt{car\_factory} 関数を更新します。 値を返すには、関数シグネチャで値の型を宣言する必要があり、関数本体で値を指定する必要があります。
+
+\begin{enumerate}
+\item 関数シグネチャを変更して、戻り値の型を \texttt{Car} 構造体として宣言します。 ファイル内の次のコード行を変更します。
+
+\begin{lstlisting}[numbers=none]
+fn car_factory(color: String, transmission: Transmission,\\
+   convertible: bool) = todo!("Return a `Car` struct") {
+\end{lstlisting}
+
+\begin{itembox}[l]{ヒント}
+大文字と小文字の区別に注意してください。 コードはまだコンパイルしないでください。
+\end{itembox}
+
+\item 新しく作成された車を返すには、 \texttt{Car} 構造体のインスタンスを作成したステートメントを調整します。
+
+\begin{lstlisting}[numbers=none]
+    let car: Car = todo!("An instance of a `Car` struct",\\
+                   "Set the function return value");
+}
+\end{lstlisting}
+
+\begin{itembox}[l]{ヒント}
+前のセクションでは、\texttt{Car} 構造体のインスタンスが正しく作成されるように、\texttt{let car: Car =} ステートメントを変更しました。 このステップを完了するに当たって、このコードを簡単にします。 1 つのステートメントで、 \texttt{Car} 構造体を作成し、新しく作成された車を返すことができます。 \texttt{let} または \texttt{return} キーワードを使用する必要はありません。
+\end{itembox}
+
+\item コードをリビルドし、エラーなしでコンパイルされることを確認します。
+\end{enumerate}
+
+
+\subsubsection{関数を呼び出す}
+
+関数を呼び出し、自動車をビルドする準備ができました。
+
+\begin{enumerate}
+\item \texttt{main} 関数を既存のコードに追加します。 新しいコードは、ファイルの先頭または末尾に追加できます。
+
+
+\begin{lstlisting}[numbers=none]
+fn main() {
+    // 新車3台分の注文が入りました
+    // mutableなcar変数を宣言し、それを全車種に再利用することにします
+    let mut car = car_factory(String::from("Red"),\\
+                    Transmission::Manual, false);
+    println!("Car 1 = {}, {:?} transmission, convertible: {}, mileage: {}",
+       car.color, car.transmission, car.convertible, car.mileage);
+
+    car = car_factory(String::from("Silver"), Transmission::Automatic, true);
+    println!("Car 2 = {}, {:?} transmission, convertible: {}, mileage: {}",
+       car.color, car.transmission, car.convertible, car.mileage);
+
+    car = car_factory(String::from("Yellow"), Transmission::SemiAuto, false);
+    println!("Car 3 = {}, {:?} transmission, convertible: {}, mileage: {}",
+       car.color, car.transmission, car.convertible, car.mileage);    
+}
+\end{lstlisting}
+
+\item コードをリビルドします。 宣言されたすべての項目が使用されるようになったため、コンパイラによってエラーや警告は発行されません。 次の出力が表示されます。
+
+
+\begin{lstlisting}[numbers=none]
+Car 1 = Red, Manual transmission, convertible: false, mileage: 0
+Car 2 = Silver, Automatic transmission, convertible: true, mileage: 0
+Car 3 = Yellow, SemiAuto transmission, convertible: false, mileage: 0
+\end{lstlisting}
+
+\end{enumerate}
+
+\subsubsection{解決策}
+
+この Rust Playground 内で、コードを準備済みソリューションと比較することができます。
