@@ -1,0 +1,164 @@
+\subsection{複合データに列挙型バリアントを使用する}
+
+列挙型は、複数のバリアントのいずれも指定できる型です。 Rust で列挙型と呼ぶものは、より一般的には代数的データ型として知られています。 重要な詳細は、各列挙型バリアントには、それに付随するデータを指定できることです。
+
+列挙型の作成には \texttt{enum} キーワードを使用します。これには、列挙型バリアントを任意に組み合わせることができます。 列挙型バリアントは、構造体と同様に、名前があるフィールドを持つことが可能です。しかし、名前がないフィールドを持つことも、まったくフィールドを持たないことも可能です。 構造体型と同様に、列挙型も大文字になります。
+
+
+\subsubsection{列挙型の定義}
+
+次の例では、Web イベントを分類する列挙型を定義します。 列挙型内の各バリアントは独立しており、さまざまな量と型の値を格納します。
+
+
+
+\begin{lstlisting}[numbers=none]
+enum WebEvent {
+    // enumバリアントは、フィールドやデータ型のないユニット構造体の
+    // ようにすることができます。
+    WELoad,
+    // enumのバリアントは、データ型を持つタプル構造体のようなもの
+    // ですが、名前付きフィールドはありません。
+    WEKeys(String, char),
+    // enumバリアントは、フィールドとそのデータ型に名前を付けた
+    // 古典的な構造体のようにすることができます。
+    WEClick { x: i64, y: i64 }
+}
+\end{lstlisting}
+
+この例の列挙型には、型が異なる 3 つのバリアントがあります。
+
+\begin{itemize}
+\item \texttt{WELoad} には、データ型またはデータが関連付けられていません。
+\item \texttt{WEKeys} には、データ型が \texttt{String} および \texttt{char} である 2 つのフィールドがあります。
+\item \texttt{WEMClick} には、名前付きフィールド \texttt{x} と \texttt{y}、およびそれらのデータ型 (\texttt{i64}) を持つ匿名構造体が含まれています。
+\end{itemize}
+
+さまざまな種類の構造体型を定義するのと同様の方法で、バリアントのある列挙型を定義します。 すべてのバリアントは、同じ \texttt{WebEvent} 列挙型でグループ化されます。 列挙型の各バリアントは、独自の型ではありません。 \texttt{WebEvent} 列挙型のバリアントを使用する関数はすべて、列挙型内のすべてのバリアントを受け入れる必要があります。 \texttt{WEClick} バリアントだけを受け入れ、他のバリアントは受け入れない関数を使用することはできません。
+
+\subsubsection{構造体を使用して列挙型を定義する}
+
+列挙型のバリアント要件を回避する方法は、列挙型のバリアントごとに個別の構造体を定義することです。 次に、列挙型の各バリアントでは、対応する構造体が使用されます。 構造体には、対応する列挙型バリアントによって保持されていたものと同じデータが保持されます。 この定義スタイルにより、それぞれの論理バリアントを単独で参照できるようになります。
+
+次のコードは、この代替定義スタイルを使用する方法を示しています。 構造体は、データを保持するように定義されています。 列挙型のバリアントは、構造体を参照するように定義されています。
+
+\begin{lstlisting}[numbers=none]
+// タプル構造体を定義する
+struct KeyPress(String, char);
+
+// 古典的な構造体を定義する
+struct MouseClick { x: i64, y: i64 }
+
+// 新しい構造体のデータを使用するために enum バリアントを再定義します。
+// ページの Load バリアントが boolean 型になるように更新されました。
+enum WebEvent { WELoad(bool), WEClick(MouseClick), WEKeys(KeyPress) }
+\end{lstlisting}
+
+\subsubsection{列挙型をインスタンス化する}
+
+次に、列挙型バリアントのインスタンスを作成するコードを追加しましょう。 バリアントごとに、\texttt{let} キーワードを使用して代入を行います。 列挙型の定義で特定のバリアントにアクセスするには、二重コロン \texttt{::} を含む構文 \texttt{<enum>::<variant>} を使用します。
+
+\subsubsection{単純なバリアント: WELoad(bool)}
+
+\texttt{WebEvent} 列挙型の最初のバリアントには、\texttt{WELoad(bool)} という 1 つのブール値があります。 このバリアントは、前のユニットでブール値を操作した場合と同様の方法でインスタンス化します。
+
+\begin{lstlisting}[numbers=none]
+let we_load = WebEvent::WELoad(true);
+\end{lstlisting}
+
+\subsubsection{構造体バリアント: WEClick(MouseClick)}
+
+2 番目のバリアントには、従来の構造体 \texttt{WEClick(MouseClick)} が含まれています。 構造体には \texttt{x} および \texttt{y} という 2 つの名前付きフィールドがあり、両方のフィールドに \texttt{i64} データ型があります。 このバリアントを作成するには、まず構造体をインスタンス化します。 次に、バリアントをインスタンス化するための呼び出しで、構造体を引数として渡します。
+
+\begin{lstlisting}[numbers=none]
+// MouseClick構造体のインスタンスを作成し、座標値をバインドする。
+let click = MouseClick { x: 100, y: 250 };
+
+// WEClickバリアントがクリック構造体のデータを使用するように設定します。
+let we_click = WebEvent::WEClick(click);
+\end{lstlisting}
+
+\subsubsection{タプル バリアント: WEKeys(KeyPress)}
+
+最後のバリアントにはタプル \texttt{WEKeys(KeyPress)} が含まれています。 タプルには、\texttt{String} および \texttt{char} データ型を使用する 2 つのフィールドがあります。 このバリアントを作成するには、まずタプルをインスタンス化します。 次に、バリアントをインスタンス化するための呼び出しで、タプルを引数として渡します。
+
+\begin{lstlisting}[numbers=none]
+// KeyPressタプルをインスタンス化し、キー値をバインドする
+let keys = KeyPress(String::from("Ctrl+"), 'N');
+    
+// WEKeys バリアントがキータプルのデータを使用するように設定します。
+let we_key = WebEvent::WEKeys(keys);
+\end{lstlisting}
+
+このコードでは、\texttt{String::from("<value>")} 構文を使用していることに注意してください。 この構文では、Rust の \texttt{from} メソッドを呼び出すことによって型 \texttt{String} の値が作成されます。 メソッドには、二重引用符で囲まれたデータの入力引数が必要です。
+
+\subsubsection{列挙型の例}
+
+列挙型バリアントをインスタンス化するための最終的なコードは次のようになります。
+
+\begin{lstlisting}[numbers=none]
+// タプル構造体の定義
+#[derive(Debug)]
+struct KeyPress(String, char);
+
+// 古典的な構造体の定義
+#[derive(Debug)]
+struct MouseClick { x: i64, y: i64 }
+
+// 構造体のデータを使用する WebEvent enum variant と
+// page Load variant の boolean 型を定義する。
+#[derive(Debug)]
+enum WebEvent { WELoad(bool), WEClick(MouseClick), WEKeys(KeyPress) }
+
+// MouseClick構造体のインスタンスを作成し、座標値をバインドする。
+let click = MouseClick { x: 100, y: 250 };
+println!("Mouse click location: {}, {}", click.x, click.y);
+    
+// KeyPressタプルをインスタンス化し、キー値をバインドする
+let keys = KeyPress(String::from("Ctrl+"), 'N');
+println!("\nKeys pressed: {}{}", keys.0, keys.1);
+    
+// WebEvent enum variants のインスタンス化
+// ページロードのブーリアン値をtrueに設定する
+let we_load = WebEvent::WELoad(true);
+// WEClickバリアントがクリック構造体のデータを使用するように設定します。
+let we_click = WebEvent::WEClick(click);
+// WEKeys バリアントがキータプルのデータを使用するように設定します。
+let we_key = WebEvent::WEKeys(keys);
+    
+// WebEvent enum variantsの値を表示する。
+// enumの構造とデータを読みやすい形で表示するには、{:#?}構文を使用します。
+println!("\nWebEvent enum structure: \n\n {:#?} \n\n {:#?} \n\n {:#?}",
+         we_load, we_click, we_key);
+\end{lstlisting}
+
+Rust Playground 内で、このコード例を操作してみてください。
+
+\subsubsection{デバッグ ステートメント}
+
+前の例で、次のコード ステートメントを探します。 このステートメントは、コード内のいくつかの場所で使用されています。
+
+\begin{lstlisting}[numbers=none]
+// 出力されたデータを確認できるように、Debugフラグを設定する
+#[derive(Debug)]
+\end{lstlisting}
+
+\texttt{\#[derive(Debug)]} 構文を使用すると、コードの実行中に、標準出力では見ることのできない特定の値を確認できます。 \texttt{println!} マクロでデバッグ データを表示するには、構文 \texttt{\{:\#?\}} を使用して、読み取り可能な方法でデータを書式設定します。
+
+\subsubsection{自分の知識をチェックする}
+
+
+次の質問に答えて、学習した内容を確認してください。
+
+
+\begin{enumerate}
+\item Rust の列挙型のすべてのバリアントは、同じ型にグループ化されます。 列挙型のいずれかのバリアントを使う関数では、そのすべてのバリアントを受け入れる必要があります。 列挙型バリアントのこれらの要件を回避するにはどうすればよいですか?
+
+\begin{itemize}
+\item 列挙型でバリアントごとに個別の構造体を定義して、バリアント データを格納する。
+
+\item バリアントを 1 つだけ保持するように列挙型を定義する。
+
+\item すべて同じ型のバリアントを使用するように、列挙型を定義する。
+\end{itemize}
+
+\end{enumerate}
