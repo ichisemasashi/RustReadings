@@ -1,0 +1,204 @@
+\subsection{数値、テキスト、true/false 値のデータ型を調べる}
+
+Rust は静的型指定の言語です。 コンパイラは、プログラムをコンパイルして実行するために、コード内のすべての変数の正確なデータ型を認識している必要があります。 通常、コンパイラでは、バインドされた値に基づいて変数のデータ型を推測できます。 常にコード内で型を明示的に指定する必要はありません。 多くの型が可能な場合は、 型の注釈 を使用して、コンパイラに特定の型を通知する必要があります。
+
+次の例では、 \texttt{number} 変数を 32 ビット整数として作成するようにコンパイラに指示しています。 変数名の後にデータ型 \texttt{u32} を指定します。 変数名の後にコロン \texttt{:} が使用されていることに注意してください。
+
+
+\begin{lstlisting}[numbers=none]
+let number: u32 = 14;
+println!("The number is {}.", number);
+\end{lstlisting}
+
+変数の値を二重引用符で囲むと、コンパイラは値を数値ではなくテキストとして解釈します。 値の推定データ型が変数に指定された \texttt{u32} データ型と一致しないため、コンパイラによってエラーが発行されます。
+
+\begin{lstlisting}[numbers=none]
+let number: u32 = "14";
+\end{lstlisting}
+
+コンパイラ エラー:
+
+\begin{lstlisting}[numbers=none]
+   Compiling playground v0.0.1 (/playground)
+error[E0308]: mismatched types
+ --> src/main.rs:2:23
+  |
+2 |     let number: u32 = "14";
+  |                 ---   ^^^^ expected `u32`, found `&str`
+  |                 |
+  |                 expected due to this
+
+error: aborting due to previous error
+\end{lstlisting}
+
+この Rust Playground で、前述のコードを操作できます。
+
+\subsubsection{組み込みのデータ型}
+
+Rust には、数値、テキスト、真実性を表すいくつかの組み込みのプリミティブ データ型が用意されています。 これらの型のいくつかは単一の値を表すため、"スカラー" と呼ばれます。
+
+\begin{itemize}
+\item 整数
+\item 浮動小数点数
+\item ブール値
+\item 文字
+\end{itemize}
+
+Rust には、文字列やタプルの値など、データ系列を操作するためのより複雑なデータ型も用意されています。
+
+\subsubsection{数値: 整数と浮動小数点値}
+
+Rust の整数は、ビット サイズと 符号付き プロパティによって識別できます。 \textbf{符号付き} 整数には、正または負の数値を指定できます。 \textbf{符号なし} 整数には、正の数値のみを指定できます。
+
+\begin{tabular}{lll}
+長さ & 符号付き & 符号なし\\ \hline
+8 ビット & \texttt{i8} & \texttt{u8}\\ \hline
+16 ビット & \texttt{i16} & \texttt{u16}\\ \hline
+32 ビット & \texttt{i32} & \texttt{u32}\\ \hline
+64 ビット & \texttt{i64} & \texttt{u64}\\ \hline
+128 ビット & \texttt{i128} & \texttt{u128}\\ \hline
+architecture-dependent & \texttt{isize} & \texttt{usize}\\
+\end{tabular}
+
+\texttt{isize} 型と \texttt{usize} 型は、プログラムが実行されているコンピューターの種類によって異なります。 64 ビット アーキテクチャでは 64 ビット型が、32 ビットアーキテクチャでは 32 ビット型が使用されます。 整数の型を指定せず、システムが型を推論できない場合は、既定で \texttt{i32} 型 (32 ビット符号付き整数) が割り当てられます。
+
+Rust には、10 進値 \texttt{f32} (32 ビット) と \texttt{f64} (64 ビット) の 2 つの浮動小数点データ型があります。 既定の浮動小数点型は \texttt{f64} です。 最新の CPU では、\texttt{f64} 型は \texttt{f32} 型とほぼ同じ速度ですが、精度が高くなります。
+
+
+
+\begin{lstlisting}[numbers=none]
+let number_64 = 4.0;      // コンパイラはデフォルトの型である
+                          // f64 を使用するように値を推論します。
+let number_32: f32 = 5.0; // アノテーションで指定されたf32型
+\end{lstlisting}
+
+Rust のすべてのプリミティブ数値型では、加算、減算、乗算、除算などの算術演算がサポートされています。
+
+
+\begin{lstlisting}[numbers=none]
+// 加算・減算・乗算
+println!("1 + 2 = {} and 8 - 5 = {} and 15 * 3 = {}", 1u32 + 2, 8i32 - 5, 15 * 3);
+
+// 整数と浮動小数点の除算
+println!("9 / 2 = {} but 9.0 / 2.0 = {}", 9u32 / 2, 9.0 / 2.0);
+\end{lstlisting}
+
+\begin{itembox}[l]{注意}
+\texttt{println} 関数を呼び出すときに、データ型についての情報を Rust に通知するために、各リテラル数値にデータ型のサフィックスを追加します。 構文 \texttt{1u32} は、値が数字の 1 であることをコンパイラに伝え、値を符号なし 32 ビット整数として解釈します。   型の注釈を提供しない場合は、Rust によってコンテキストから型が推測されます。 コンテキストがあいまいである場合は、既定で \texttt{i32} 型 (32 ビット符号付き整数) が割り当てられます。
+\end{itembox}
+
+この例を Rust Playground で実行してみることができます。
+
+\subsubsection{ブール値: True または False}
+
+Rust のブール型は、真偽を格納するために使用されます。 \texttt{bool} 型には、 \texttt{true} または \texttt{false} の 2 つの有効な値があります。 ブール値は、条件式で広く使用されます。 \texttt{bool} ステートメントまたは値が \texttt{true} の場合は、このアクションを実行します。それ以外の場合 (ステートメントまたは値が \texttt{false} の場合) は、別のアクションを実行します。 ブール値は、多くの場合、比較チェックによって返されます。
+
+次の例では、より大きい \texttt{>} 演算子を使用して 2 つの値をテストします。 演算子は、テストの結果を示すブール値を返します。
+
+\begin{lstlisting}[numbers=none]
+// "より大きい "テストの結果を格納する変数を宣言する。 1 > 4か？-- false
+let is_bigger = 1 > 4;
+println!("Is 1 > 4? {}", is_bigger);
+\end{lstlisting}
+
+\subsubsection{テキスト: 文字と文字列}
+
+Rust では、2 つの基本的な文字列型と 1 つの文字型を持つテキスト値がサポートされています。 文字は 1 つの項目で、文字列は一連の文字です。 すべてのテキスト型は有効な UTF-8 表現です。
+
+\texttt{char} 型は、最もプリミティブなテキスト型です。 値は、項目を単一引用符で囲んで指定します。
+
+
+\begin{lstlisting}[numbers=none]
+let uppercase_s = 'S';
+let lowercase_f = 'f';
+let smiley_face = '😃';
+\end{lstlisting}
+
+\begin{itembox}[l]{注意}
+一部の言語では、 \texttt{char} 型を 8 ビット符号なし整数 (Rust の \texttt{u8} 型と同等) として扱います。 Rust の \texttt{char} 型には unicode コード ポイントが含まれていますが、utf-8 エンコードは使用しません。 Rust の \texttt{char} は、32 ビット幅に埋め込まれる 21 ビットの整数です。 \texttt{char} には、プレーン コード ポイント値が直接含まれています。
+\end{itembox}
+
+\subsubsection{文字列}
+
+\texttt{str} 型は "文字列スライス" とも呼ばれ、文字列データであることが わかります。 ほとんどの場合、アンパサンドが型の前にある参照スタイルの構文 \texttt{&str} を使用して、これらの型を参照します。 参照については後述のモジュールで説明します。 ここでは、\texttt{&str} を、変更できない文字列データへのポインターとして考えることができます。 文字列リテラルはすべて型 \texttt{&str} です。
+
+文字列リテラルは、初歩的な Rust の例で使用するのは便利ですが、テキストを使用するすべての状況に適しているわけではありません。 コンパイル時にすべての文字列がわかっているわけではありません。 例は、実行時にユーザーがプログラムと対話し、ターミナル経由でテキストを送信する場合です。
+
+これらのシナリオでは、Rust には \texttt{String} という名前の 2 番目の文字列型があります。 この型は、ヒープに割り当てられます。 \texttt{String} 型を使用する場合、コードをコンパイルする前に、文字列の長さ (文字数) を把握しておく必要はありません。
+
+\begin{itembox}[l]{実質注意的に一定時間}
+ガベージ コレクションされた言語に慣れている場合は、Rust に 2 つの文字列型がある理由を疑問に思う可能性があります。{}^1 文字列はとても複雑なデータ型です。 ほとんどの言語では、それぞれのガベージ コレクターを使用してこの複雑さを解消しています。 システムの言語である Rust では、文字列に固有の複雑さがいくつか見られます。 この複雑さが加わることで、プログラムでのメモリの使用方法を非常に細かく制御できるようになります。
+
+{}^1 実際には、Rust には 2 つより多くの文字列型があります。 このモジュールでは、 \texttt{String} 型と \texttt{&str} 型のみを扱います。 提供される文字列型について詳しくは、Rust のドキュメントをご覧ください。
+\end{itembox}
+
+Rust の所有権および借用システムについて学習するまで、 \texttt{String} と \texttt{&str} との違いについて完全に理解することはできません。 それまでは、 \texttt{String} 型データを、プログラムの実行時に変更される可能性があるテキスト データとして考えることができます。 \texttt{&str} 参照は、プログラムの実行時に変更されないテキスト データの不変ビューとなります。
+
+\subsubsection{テキストの例}
+
+次の例は、Rust での \texttt{char} および \texttt{&str} データ型の使用方法を示しています。
+
+\begin{itemize}
+\item \texttt{: char} 注釈構文を使用して、2 つの文字変数が宣言されます。 値は、単一引用符を使用して指定されます。
+\item 3 番目の文字変数が宣言され、1 つのイメージにバインドされます。 この変数については、コンパイラにデータ型を推測させます。
+\item 2 つの文字列変数が宣言され、それぞれの値にバインドされます。 文字列は二重引用符で囲まれます。
+\item 文字列変数の 1 つが、データ型を指定するための \texttt{: &str} 注釈構文で宣言されています。 他の変数のデータ型は指定されていません。 コンパイラによって、この変数のデータ型がコンテキストに基づいて推測されます。
+\end{itemize}
+
+\texttt{string_1} 変数には、一連の文字の末尾に空のスペースが含まれていることに注意してください。
+
+\begin{lstlisting}[numbers=none]
+// データ型 "char "を指定
+let character_1: char = 'S';
+let character_2: char = 'f';
+   
+// コンパイラは引用符で囲まれた1つの項目を "char "データ型として解釈する
+let smiley_face = '😃';
+
+// コンパイラは引用符で囲まれた一連の項目を
+// 「str」データ型として解釈し、「&str」参照を作成する
+let string_1 = "miley ";
+
+// データ型 "str "を参照構文"&str "で指定する。
+let string_2: &str = "ace";
+
+println!("{} is a {}{}{}{}.", smiley_face, character_1, string_1, character_2, string_2);
+\end{lstlisting}
+
+この例の出力を次に示します。
+
+
+\begin{lstlisting}[numbers=none]
+😃 is a Smiley face.
+\end{lstlisting}
+
+この例の \texttt{str} の前にアンパサンド \texttt{&} を指定しない場合は、どうなるでしょうか。 それを調べるには、この例を Rust Playground 内で実行してみます。
+
+
+\subsubsection{自分の知識をチェックする}
+
+次の質問に答えて、学習した内容を確認してください。
+
+\begin{enumerate}
+\item Rust での整数値の定義方法についての説明はどれですか?
+
+\begin{itemize}
+\item Rust の整数は、主に、8 ビット、16 ビットなどのビット サイズによって識別される。
+
+\item Rust の整数は、ビット サイズと 符号付き プロパティによって識別される。
+
+\item Rust の正または負の整数は、符号なし (\texttt{u}) または符号付き (\texttt{i}) の値として定義できます。
+\end{itemize}
+
+\item Rust でのテキスト文字値のサポート方法の正しい説明はどれですか?
+
+\begin{itemize}
+\item Rust には 1 つのデータ型があり、1 つの文字と複数文字のテキスト文字列の両方に使用できる。
+
+\item 文字 (\texttt{char}) は、"A" や "z" のような 1 つのアルファベット文字にのみ使用できる。 文字列は、文字、数字、イメージなど、一連の任意の文字に使用できる。
+
+\item Rust では、すべてのテキスト型は有効な UTF-8 表現である。
+\end{itemize}
+
+\end{enumerate}
+
