@@ -1,0 +1,194 @@
+\subsection{タプルと構造体を使用してデータのコレクションを定義する}
+
+このユニットでは、タプルと構造体という、データ コレクションまたは複合データの操作に役立つ 2 つのデータ型について説明します。
+
+\subsubsection{タプル}
+
+タプルは、1 つの複合値に収集されたさまざまな型の値をグループ化したものです。 タプル内の個々の値は、"要素" と呼ばれます。 値は、かっこ \texttt{(<value>, <value>, ...)} で囲まれたコンマ区切りのリストとして指定されます。
+
+タプルの長さは固定で、要素の数と同じになります。 タプルが宣言された後に、サイズを拡大または縮小することはできません。 要素を追加または削除することはできません。 タプルのデータ型は、要素のデータ型のシーケンスによって定義されます。
+
+\subsubsection{タプルを定義する}
+
+3 つの要素を持つタプルの例を次に示します。
+
+
+\begin{lstlisting}[numbers=none]
+// 長さ3のタプル
+let tuple_e = ('E', 5i32, true);
+\end{lstlisting}
+
+次の表は、タプル内の各要素の値、データ型、およびインデックスを示しています。
+
+\begin{tabular}{lll}
+要素 & 値 & データ型\\ \hline
+0 & E & \texttt{char}\\ \hline
+1 & 5 & \texttt{i32}\\ \hline
+2 & true & \texttt{bool}\\
+\end{tabular}
+
+このタプルの型シグネチャは、3 つの要素の型のシーケンス \texttt{(char, i32, bool)} によって定義されます。
+
+\subsubsection{タプル内の要素にアクセスする}
+
+タプル内の要素には、0 から始まるインデックス位置によってアクセスできます。 このプロセスは、"タプルのインデックス付け" と呼ばれます。 タプル内の要素にアクセスするには、構文 \texttt{<tuple>.<index>} を使用します。
+
+次の例は、インデックスを使用してタプル内の要素にアクセスする方法を示しています。
+
+
+
+\begin{lstlisting}[numbers=none]
+// 3つの要素からなるタプルの宣言
+let tuple_e = ('E', 5i32, true);
+
+// タプルインデックスを使用し、タプル内の要素の値を表示する
+println!("Is '{}' the {}th letter of the alphabet? {}", \\
+         tuple_e.0, tuple_e.1, tuple_e.2);
+\end{lstlisting}
+
+例では、次の出力が表示されます。
+
+\begin{lstlisting}[numbers=none]
+Is 'E' the 5th letter of the alphabet? true
+\end{lstlisting}
+
+この例を Rust Playground 内で実行することができます。
+
+タプルは、異なる型を 1 つの値に組み合わせる場合に便利です。 タプルでは任意の数の値を保持できるため、関数でタプルを使用して、複数の値を返すことができます。
+
+\subsubsection{構造体}
+
+構造体は、他の型で構成される型です。 構造体の要素は "フィールド" と呼ばれます。 タプルと同様に、構造体のフィールドは異なるデータ型を持つことができます。 構造体型の大きな利点は、各フィールドに名前を指定して値の意味を明確にできることです。
+
+Rust プログラムで構造体を操作するには、まず構造体を名前で定義し、各フィールドのデータ型を指定します。 次に、別の名前を使用して構造体の "インスタンス" を作成します。 インスタンスを宣言する場合は、フィールドに特定の値を指定します。
+
+Rust では、従来の構造体、タプル構造体、ユニット構造体という 3 つの構造体型がサポートされています。 これらの構造体型により、データのグループ化や操作を行うさまざまな方法がサポートされます。
+
+\begin{itemize}
+\item \textbf{従来の C 構造体}は最もよく使われています。 構造体内の各フィールドには、名前とデータ型があります。 従来の構造体を定義した後は、構文 \texttt{<struct>.<field>} を使用して構造体内のフィールドにアクセスできます。
+\item \textbf{タプル構造体}は従来の構造体に似ていますが、フィールドには名前がありません。 タプル構造体内のフィールドにアクセスするには、タプルのインデックス付けの場合と同じ構文 \texttt{(<tuple>.<index>)} を使用します。 タプルの場合と同様に、タプル構造体のインデックス値は 0 から始まります。
+\item \texttt{ユニット構造体}、マーカーとして最もよく使用されます。 Rust の "特徴" について学習するときに、ユニット構造体が役立つ場合がある理由について詳しく学習します。
+\end{itemize}
+
+次のコードは、3 種類の構造体型の定義例を示しています。
+
+\begin{lstlisting}[numbers=none]
+// 名前付きフィールドを持つ古典的な構造体
+struct Student { name: String, level: u8, remote: bool }
+
+// データ型のみを持つタプル構造体
+struct Grades(char, char, char, char, f32);
+
+// ユニット構造体
+struct Unit;
+\end{lstlisting}
+
+\subsubsection{構造体を定義する}
+
+\paragraph{従来の構造体}
+
+関数と同様に、従来の構造体の本体は中かっこ \texttt{\{\}} 内で定義されます。 従来の構造体の各フィールドには、構造体内で一意の名前が付けられます。 各フィールドの型は、構文 \texttt{: <type>} で指定します。 従来の構造体内のフィールドは、コンマ区切りのリスト \texttt{<field>, <field>, ...} として指定されます。 従来の構造体の定義は、セミコロンで終了しません。
+
+
+\begin{lstlisting}[numbers=none]
+// 名前付きフィールドを持つ古典的な構造体
+struct Student { name: String, level: u8, remote: bool }
+\end{lstlisting}
+
+従来の構造体の定義の利点は、構造体のフィールドの値に名前でアクセスできることです。 フィールド値にアクセスするには、構文 \texttt{<struct>.<field>} を使用します。
+
+\paragraph{タプル構造体}
+
+タプルと同様に、タプル構造体の本体はかっこ \texttt{()} 内に定義されます。 かっこは、構造体名の直後に続きます。 構造体名と左かっこの間にスペースはありません。
+
+タプルとは異なり、タプル構造体の定義には、各フィールドのデータ型のみが含まれます。 タプル構造体のデータ型は、コンマ区切りのリスト \texttt{<type>, <type>, ...} として指定されます。
+
+\begin{lstlisting}[numbers=none]
+// データ型のみを持つタプル構造体
+struct Grades(char, char, char, char, f32);
+\end{lstlisting}
+
+\subsubsection{構造体のインスタンス化}
+
+構造体型を定義したら、型のインスタンスを作成し、各フィールドの値を指定することによって、構造体を使用します。 フィールドの値を設定するときに、フィールドを定義されている順序で指定する必要はありません。
+
+次の例では、Student および Grades 構造体型に対して作成した定義を使用します。
+
+\begin{lstlisting}[numbers=none]
+// 古典的な構造体をインスタンス化し、
+// フィールドをランダムな順序、あるいは指定した順序で指定する。
+let user_1 = Student { name: String::from("Constance Sharma"),\\
+ remote: true, level: 2 };
+let user_2 = Student { name: String::from("Dyson Tan"),\\
+ level: 5, remote: false };
+
+// タプル構造体のインスタンスを作成し、定義された型と同じ順序で値を渡す
+let mark_1 = Grades('A', 'A', 'B', 'A', 3.75);
+let mark_2 = Grades('B', 'A', 'A', 'C', 3.25);
+
+println!("{}, level {}. Remote: {}. Grades: {}, {}, {}, {}. Average: {}", 
+         user_1.name, user_1.level, user_1.remote, mark_1.0, mark_1.1,\\
+         mark_1.2, mark_1.3, mark_1.4);
+println!("{}, level {}. Remote: {}. Grades: {}, {}, {}, {}. Average: {}", 
+         user_2.name, user_2.level, user_2.remote, mark_2.0, mark_2.1,\\
+         mark_2.2, mark_2.3, mark_2.4);
+\end{lstlisting}
+
+\subsubsection{文字列リテラルを String 型に変換する}
+
+構造体やベクターなど、別のデータ構造内に格納される文字列データは、文字列リテラルの参照 (\texttt{\&str}) から \texttt{String} 型に変換する必要があります。 変換を行うには、標準の \texttt{String::from(\&str)} メソッドを使用します。 この例でのこのメソッドの使用方法に注意してください。
+
+\begin{lstlisting}[numbers=none]
+// 名前付きフィールドを持つ古典的な構造体
+struct Student { name: String, level: u8, remote: bool }
+...
+let user_2 = Student { name: String::from("Dyson Tan"),\\
+ level: 5, remote: false };
+\end{lstlisting}
+
+値を代入する前に型を変換しないと、コンパイラでエラーが発生します。
+
+\begin{lstlisting}[numbers=none]
+error[E0308]: mismatched types
+  --> src/main.rs:24:15
+   |
+24 |         name: "Dyson Tan",
+   |               ^^^^^^^^^^^
+   |               |
+   |               expected struct `String`, found `&str`
+   |               help: try using a conversion method: `"Dyson Tan".to_string()`
+
+error: aborting due to previous error
+\end{lstlisting}
+
+コンパイラでは、\texttt{.to\_string()} 関数を使って変換できることが示されています。 この例では、\texttt{String::from(\&str)} メソッドを使います。
+
+この Rust Playground 内で、コード例を操作できます。
+
+\subsubsection{自分の知識をチェックする}
+
+次の質問に答えて、学習した内容を確認してください。
+
+
+\begin{enumerate}
+\item Rust の tuple とは何ですか?
+
+\begin{itemize}
+\item タプルは、異なる型の値のコレクションである。 データ型はその要素のデータ型に基づいており、長さは要素の数に基づいて固定される。
+
+\item タプルは、異なる型の値のコレクションである。 データ型は、その要素のデータ型に基づいている。 長さは、要素の追加または削除に合わせて、伸びたり縮んだりできる。
+
+\item タプルは、同じデータ型の値のコレクションである。 タプルのすべての要素は、同じデータ型である必要がある。 タプルの長さは、要素の数に基づいて固定される。
+\end{itemize}
+
+\item Rust での従来の構造体とタプル構造体の主な違いは何ですか?
+
+\begin{itemize}
+\item 従来の構造体のすべてのフィールドは、同じデータ型である必要がある。 タプル構造体のフィールドは、異なるデータ型でもかまわない。
+
+\item タプル構造体の値には、インデックスを使用してアクセスできる。 従来の構造体の値には、フィールド名によってのみアクセスできる。
+
+\item 従来の構造体の各フィールドには、名前とデータ型がある。 タプル構造体のフィールドには、名前がない。
+\end{itemize}
+
+\end{enumerate}
