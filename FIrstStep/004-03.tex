@@ -1,0 +1,189 @@
+\subsection{ベクター データ型を調べる}
+
+配列と同様に、ベクターには、データ型が同じ複数の値を格納します。 ベクターのサイズまたは長さは、配列とは異なり、いつでも拡大または縮小できます。 時間の経過に伴ってサイズが変化するかどうかは、コンパイル時に暗黙的に示されます。 その結果、Rust では、配列内での範囲外のアクセスの場合と同様に、ベクター内の無効な位置にアクセスすることを阻止できない可能性があります。
+
+\subsubsection{ベクターを定義する}
+
+Rust 言語のコードを読むと、構文 \texttt{<T>} があることがわかります。 この構文は、ジェネリック型 \texttt{T} の使用を表します。 実際のデータ型がまだわかっていない場合は、ジェネリック型宣言を使用します。
+
+ジェネリック型の構文は、ベクターを宣言するために使用されます。 構文 \texttt{<vector><T>} では、ジェネリック (未知) データ型 \texttt{T} で構成されるベクター型が宣言されます。 実際にベクターを作成するには、\texttt{<vector>u32} のような具象型、\texttt{u32} 型のベクター、または \texttt{String} 型のベクターである \texttt{<vector>String} を使用します。
+
+ベクターを宣言して初期化する一般的な方法は、\texttt{vec!} マクロを使用することです。 このマクロでは、配列コンストラクターと同じ構文も受け入れられます。
+
+
+\begin{lstlisting}[numbers=none]
+// ベクトルを宣言し、3つの値で初期化する。
+let three_nums = vec![15, 3, 46];
+println!("Initial vector: {:?}", three_nums);  
+  
+// ベクトル、値 = "0"、長さ = 5 を宣言する。
+let zeroes = vec![0; 5];
+println!("Zeroes: {:?}", zeroes); 
+\end{lstlisting}
+
+出力は次のようになります。
+
+\begin{lstlisting}[numbers=none]
+Initial vector: [15, 3, 46]
+Zeroes: [0, 0, 0, 0, 0]
+\end{lstlisting}
+
+この例では、\texttt{println!} マクロでコロン疑問符 \texttt{\{:?\}} 構文を使用します。 Rust では、整数のベクターを表示する方法がわかりません。 特殊な書式設定を使用せずにベクター情報を表示しようとすると、コンパイラからエラーが発行されます。 空の中かっこ \texttt{\{\}} を使用して、ベクター値を表示できます。
+
+ベクトルは、\texttt{Vec::new()} メソッドを使用して作成することもできます。 このベクター作成メソッドを使用すると、ベクターの末尾に値を追加および削除できます。 この動作をサポートするために、\texttt{mut} キーワードを使用してベクター変数を変更可能として宣言します。
+
+
+\begin{lstlisting}[numbers=none]
+// 空のベクトルを作成し、ベクトルをミュータブルに宣言して、拡大・縮小できるようにします。
+let mut fruit = Vec::new();
+\end{lstlisting}
+
+\subsubsection{プッシュ値とポップ値}
+
+\texttt{Vec::new()} メソッドを使用してベクターを作成する場合は、ベクターの末尾に値を追加および削除できます。
+
+ベクターの末尾に値を追加するには、\texttt{push(<value>)} メソッドを使用します。
+
+\begin{lstlisting}[numbers=none]
+// 値をベクトルの末尾にプッシュし、型を一般的な `T` から String に変更する。
+fruit.push("Apple");
+fruit.push("Banana");
+fruit.push("Cherry");
+println!("Fruits: {:?}", fruit); 
+\end{lstlisting}
+
+出力では、ベクターを表す角かっこと、各 \texttt{String} 値を囲む引用符も表示されることに注意してください。
+
+\begin{lstlisting}[numbers=none]
+Fruits: ["Apple", "Banana", "Cherry"]
+\end{lstlisting}
+
+ベクターの型が具象型に設定された後は、その特定の型の値のみをベクターに追加できます。 別の型の値を追加しようとすると、コンパイラからエラーが返されます。
+
+\begin{lstlisting}[numbers=none]
+// 整数値をプッシュするが、ベクターは文字列(&str)型の値を期待する
+fruit.push(1);
+\end{lstlisting}
+
+コンパイラ エラー:
+
+\begin{lstlisting}[numbers=none]
+error[E0308]: mismatched types
+  --> src/main.rs:11:17
+   |
+11 |     fruit.push(1);
+   |                ^ expected `&str`, found integer
+
+error: aborting due to previous error
+\end{lstlisting}
+
+ベクターの末尾にある値を削除するには、\texttt{pop()} メソッドを使用します。
+
+\begin{lstlisting}[numbers=none]
+// ベクトル末尾の値をポップオフする
+// println!マクロの中から pop() メソッドを呼び出す。
+println!("Pop off: {:?}", fruit.pop());
+println!("Fruits: {:?}", fruit); 
+\end{lstlisting}
+
+出力には、"Cherry" 値が削除され、ベクターにアタッチされていないことが示されます。
+
+\begin{lstlisting}[numbers=none]
+Pop off: Some("Cherry")
+Fruits: ["Apple", "Banana"]
+\end{lstlisting}
+
+\subsubsection{ベクターにインデックスを付ける}
+
+ベクターでは、配列と同じ方法でインデックスがサポートされます。 インデックスを使用してベクター内の要素値にアクセスできます。 最初の要素はインデックス 0 にあり、最後の要素はベクターの長さ - 1 にあります。
+
+
+
+\begin{lstlisting}[numbers=none]
+// ベクトルを宣言し、3つの値で初期化する。
+let mut index_vec = vec![15, 3, 46];
+let three = index_vec[1];
+println!("Vector: {:?}, three = {}", index_vec, three);  
+\end{lstlisting}
+
+出力は次のようになります。
+
+\begin{lstlisting}[numbers=none]
+Vector: [15, 3, 46], three = 3
+\end{lstlisting}
+
+ベクター値は変更可能なので、インデックスを使用して要素の値にアクセスすることで、値を変更できます。
+
+\begin{lstlisting}[numbers=none]
+// インデックス1の値に5を足して、5＋3＝8となります。
+index_vec[1] = index_vec[1] + 5;
+println!("Vector: {:?}", index_vec); 
+\end{lstlisting}
+
+出力は次のようになります。
+
+\begin{lstlisting}[numbers=none]
+Vector: [15, 8, 46]
+\end{lstlisting}
+
+\subsubsection{境界外のインデックス値を監視する}
+
+配列と同様に、許可された範囲内にないインデックスを持つベクター内の要素にはアクセスできません。 この型の式は、配列の場合は、コンパイラからエラーが返されます。 ベクターの場合、コンパイルは成功しますが、プログラムは式で回復不可能なパニック状態になり、プログラムの実行は停止されます。
+
+3 つの要素を持つベクターの例では、インデックス 10 にある要素にアクセスしようとするとどうなるでしょうか。
+
+
+\begin{lstlisting}[numbers=none]
+// ベクターへの範囲外のインデックスアクセス
+let beyond = index_vec[10];
+println!("{}", beyond);
+\end{lstlisting}
+
+プログラムは中止され、次のエラー メッセージが表示されます。
+
+\begin{lstlisting}[numbers=none]
+thread 'main' panicked at 'index out of bounds:\\
+    the len is 3 but the index is 10'...
+\end{lstlisting}
+
+別のモジュールで、プログラム パニックを引き起こさずにベクター要素に安全にアクセスする方法を調べます。
+
+この Rust Playground 内で、このコードを実行してベクターを調べることができます。
+
+
+\subsubsection{自分の知識をチェックする}
+
+次の質問に答えて、学習した内容を確認してください。
+
+
+\begin{enumerate}
+\item データ型がわからない場合にベクターを宣言するにはどうすればよいですか?
+
+\begin{itemize}
+\item \texttt{<vector><:?>}
+
+\item \texttt{<vector><T>}
+
+\item \texttt{<vector>}
+\end{itemize}
+
+\item \texttt{pop} 関数では、ベクターに対してどのような処理が行われますか?
+
+\begin{itemize}
+\item ベクターの最後の値を取り出します。
+
+\item ベクターの先頭の値を取り出します。
+
+\item ソーダの "はじける" 泡のように、ベクターにソフトウェアの炭化を追加します。
+\end{itemize}
+
+\item ベクター サイズより大きいインデックスを使用してベクター要素にアクセスしようとするとどうなりますか?
+
+\begin{itemize}
+\item null 値が返されます。
+
+\item コンパイル エラーが発生します。
+
+\item プログラムが実行時にパニックします。
+\end{itemize}
+\end{enumerate}
