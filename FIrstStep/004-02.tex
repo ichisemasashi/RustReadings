@@ -1,0 +1,120 @@
+\subsection{配列の作成と使用}
+
+Rust には、複数の値を 1 つの型にグループ化するのに使用できる複合データ型がいくつか用意されています。 別のモジュールで、異なる型を単一値に結合する場合に有用な \texttt{tuple} データ型を確認しました。 このセクションでは、 \texttt{array} データ型について調べましょう。
+
+配列は、メモリに連続して格納された同じ型のオブジェクトのコレクションです。 配列の長さまたは "サイズ" は、配列内の要素の数と同じです。 配列のサイズは、コード内で指定することも、コンパイラによって計算することもできます。
+
+\subsubsection{配列を定義する}
+
+配列は、2 つの方法で定義できます。
+
+\begin{itemize}
+\item 長さが指定されていない、値のコンマ区切りリスト。
+\item 初期値、その後にセミコロン、次に配列の長さ。
+\end{itemize}
+
+どちらの場合も、コンテンツは角かっこ \texttt{[]} で囲まれます。
+
+
+\begin{lstlisting}[numbers=none]
+// 配列を宣言し，すべての値を初期化，コンパイラは長さ = 7 と推測する．
+let days = ["Sunday", "Monday", "Tuesday", "Wednesday",
+            "Thursday", "Friday", "Saturday"];
+  
+// 配列の宣言、すべての値を0に初期化、長さ=5
+let bytes = [0; 5];
+\end{lstlisting}
+
+\subsubsection{配列シグネチャを読み取る}
+
+コンパイル時に、配列のシグネチャは \texttt{[T; size]} として定義されます。
+
+\begin{itemize}
+\item \texttt{T} は、配列内のすべての要素のデータ型です。
+\item \texttt{size} は配列の長さを表す負以外の整数です。
+\end{itemize}
+
+シグネチャにより、配列に関する 2 つの重要な特性が明らかになります。
+
+\begin{itemize}
+\item 配列のすべての要素は、同じデータ型です。 データ型が変更されることはありません。
+\item 配列のサイズは固定です。 長さが変更されることはありません。
+\end{itemize}
+
+配列について時間の経過と共に変化する可能性があるのは、配列内の要素の値だけです。 データ型は一定で、要素の数 (長さ) も一定のままです。 値のみが変更される可能性があります。
+
+\subsubsection{配列にインデックスを付ける}
+
+配列内の要素には、0 から始まる暗黙的な番号が付けられます。 インデックスを使用し、式 \texttt{<array>[<index>]} を使用して配列内の要素にアクセスします。 たとえば、 \texttt{my\_array[0]} では、 \texttt{my\_array} 変数のインデックス 0 にある要素がアクセスされます。 式により、そのインデックス位置にある配列要素の値が返されます。
+
+7 つの要素を持つ \texttt{days} という名前の配列を確認しましょう。
+
+\begin{lstlisting}[numbers=none]
+// 曜日
+let days = ["Sunday", "Monday", "Tuesday", "Wednesday",
+            "Thursday", "Friday", "Saturday"];
+
+// 週の初日を取得
+let first = days[0];
+
+// 第2の曜日を取得
+let second = days[1];
+\end{lstlisting}
+
+\texttt{days} 配列の要素にアクセスするには、0 から配列の長さ (1 から 6) の範囲のインデックスを使用します。 インデックスが 0 である 1 番目の要素の値は "Sunday" です。 インデックス 6 にある 7 番目の要素の値は "Saturday" です。
+
+\texttt{first} 変数に値を割り当てるには、式 \texttt{days[0]} を使用して、 \texttt{days} 配列内の最初の要素の値 (\texttt{Sunday}) を取得します。 \texttt{second} 変数の場合は、同様の式 \texttt{days[1]} を使用して、 \texttt{days} 配列内の 2 番目の要素の値 (\texttt{Monday}) を取得します。
+
+\subsubsection{境界外のインデックス値を監視する}
+
+許容範囲内ではないインデックスを使用して配列内の要素にアクセスしようとすると、コンパイラからエラーが返されます。 配列には 7 つの要素しかないので、\texttt{days[7]} のような式は範囲外です。 有効なインデックス範囲は 0 から 6 です。 配列の長さ以上のインデックスは、範囲外です。 負の数値であるインデックスも範囲外です。
+
+次のコードは、範囲外コンパイラ エラーを示しています。
+
+
+\begin{lstlisting}[numbers=none]
+// 間違ったインデックスを使用して週の7日目を取得する
+// - 6でなければなりません。
+let seventh = days[7];
+\end{lstlisting}
+
+エラー出力:
+
+\begin{lstlisting}[numbers=none]
+    error: this operation will panic at runtime
+     --> src/main.rs:19:42
+   |
+19 |     let seventh = days[7];
+   |                    ^^^^^^^ index out of bounds:\\
+                         the length is 7 but the index is 7
+   |
+\end{lstlisting}
+
+配列の長さがコンパイル時に認識されているため、Rust では、範囲外インデックスの配列へのアクセスを試みるプログラムを作成できません。
+
+このコードを操作し、この Rust Playground 内で配列を探索できます。
+
+\subsubsection{自分の知識をチェックする}
+
+次の質問に答えて、学習した内容を確認してください。
+
+\begin{enumerate}
+\item 配列の宣言と初期化に使用できる構文はどれですか?
+\begin{itemize}
+\item \texttt{let multiples [5, 10, 15, 20, 25];}
+
+\item \texttt{let multiples = [5: 5];}
+
+\item \texttt{let multiples = [5; 5];}
+\end{itemize}
+
+\item 配列サイズより大きいインデックスを使用して配列要素にアクセスしようとするとどうなりますか?
+\begin{itemize}
+\item プログラムが実行時にパニックします。
+
+\item コンパイラからエラーが返されます。
+
+\item null 値が返されます。
+\end{itemize}
+
+\end{enumerate}
