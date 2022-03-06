@@ -1,0 +1,236 @@
+\subsection{演習: 複合型を処理する}
+
+この演習では、複合データ型を使用して、自動車工場プログラムを拡張します。
+
+タプルを使用して、関連するがデータ型が異なる 2 つの値を使用して自動車の品質を追跡します。 このタプルをこの関数の呼び出し元に返す \texttt{car\_quality} という名前の関数を作成します。 \texttt{main} 関数で、 \texttt{car\_factory} 関数を呼び出して各自動車注文を作成します。
+
+課題は、コンパイルして実できるようにサンプル コードを完成させることです。
+
+この演習用のサンプル コードを操作するには、次の 2 つの方法があります。
+
+\begin{itemize}
+\item コードをコピーし、ローカルの開発環境で編集します。
+\item 準備済みの Rust Playground 内でコードを開きます。
+\end{itemize}
+
+\begin{itembox}[l]{注意}
+サンプル コードで、\texttt{todo!} マクロを探します。 このマクロは、完了または更新する必要があるコードを示しています。
+\end{itembox}
+
+\subsubsection{タプル フィールドを持つように Car 構造体を更新する}
+
+最初のタスクは、\texttt{Car} 構造体の定義の変更です。 \texttt{mileage} フィールドを \texttt{age} という名前のタプル フィールドに移動します。 走行距離値と共に、\texttt{age} タプルには、自動車が "新車" か "中古" かを識別するための別のフィールドが必要です。
+
+\begin{enumerate}
+\item サンプル コードの最初のブロックを開きます。
+
+次のコードをコピーしてローカルの開発環境で編集するか、この用意されている Rust プレイグラウンドでコードを開きます。
+
+
+\begin{lstlisting}[numbers=none]
+#[derive(PartialEq, Debug)]
+// Car構造体を宣言し、4つの名前付きフィールドで車両を記述する。
+struct Car {
+    color: String,
+    motor: Transmission,
+    roof: bool,
+    mileage: u32, // todo!("Move `mileage: u32` field into `age` field\\
+                    - a tuple with two fields: an `Age` enum, u32");
+}
+
+#[derive(PartialEq, Debug)]
+// Carトランスミッションの種類を表すenumを宣言する
+enum Transmission { Manual, SemiAuto, Automatic }
+\end{lstlisting}
+
+\item 自動車の品質を記述するために、"新車" と "中古" の値を持つ \texttt{Age} という名前の列挙型を追加します。
+
+\item \texttt{Car} 構造体の宣言を修正します。
+
+\begin{enumerate}
+\item \texttt{mileage: u32} フィールドを \texttt{age} という名前のタプル フィールドに置き換えます。
+\item \texttt{Age} 列挙値と自動車走行距離の 2 つのフィールドを持つ \texttt{age} タプルを定義します。
+\end{enumerate}
+
+\item プログラムをビルドします。 次のセクションに進む前に、コードがコンパイルされることを確認してください。
+
+コードではまだ出力は表示されませんが、エラーなしでコンパイルされる必要があります。 コンパイラからの "警告" メッセージは無視してかまいません。 警告は、列挙型と構造体の定義を宣言したものの、これらをまだ使用していないことが原因で生成されます。
+\end{enumerate}
+
+
+\subsubsection{car\_quality 関数を作成する}
+
+次に、 \texttt{car\_quality} という名前の新しい関数のコードを追加します。 この関数は、自動車走行距離を入力引数として受け取ります。 走行距離と自動車年数を保持するタプルを作成します。 関数から呼び出し元にタプルが返されます。
+
+\begin{enumerate}
+
+\item 既存のコードに次のコード ブロックを追加します。 新しいコードは、ファイルの先頭または末尾に追加できます。
+
+\begin{lstlisting}[numbers=none]
+// 入力引数の値をテストして車の品質を取得する
+// - miles (u32)
+// 車の品質について、Age（"New "または "Used"）と走行距離のタプルを作成する。
+// 矢印 `->` 構文でタプルを返す。
+fn car_quality (miles: u32) -> (Age, u32) {
+
+    // 戻り値タプル値の宣言と初期化
+    // 新車の場合、マイルを0に設定する
+    let quality: (Age, u32) = todo!("Set the `Age` value to \"New\",\\
+                 set the mileage using the `miles` input argument");
+
+    // 完成したタプルを呼び出し元に返す
+    todo!("Return the tuple");
+}
+\end{lstlisting}
+
+\item "新車" の \texttt{quality} タプル値を設定するコードを完成させます。
+
+\item 関数の末尾にある \texttt{return} ステートメントを更新して、完成したタプルを呼び出し元に返します。
+
+\item プログラムをビルドします。 次のセクションに進む前に、コードがコンパイルされることを確認してください。 コードではまだ出力は表示されませんが、エラーなしでコンパイルされる必要があります。
+
+
+\end{enumerate}
+
+
+\subsubsection{car\_factory 関数を更新する}
+
+次の手順では、 \texttt{car\_factory} 関数を更新します。 \texttt{car\_quality} 関数から返されるタプルをサポートする必要があります。 \texttt{Car} 構造体の定義を更新したので、データを正しく処理するように関数本体を調整する必要があります。
+
+\begin{enumerate}
+
+\item 既存のコードに次のコード ブロックを追加します。 新しいコードは、ファイルの先頭または末尾に追加できます。
+
+\begin{lstlisting}[numbers=none]
+// 4つの入力引数の値を使って新しい "Car "を作る
+// - color (String)
+// - motor (Transmission enum)
+// - roof (boolean, true if the car has a hard top roof)
+// - miles (u32)
+// car_quality(miles)関数を呼び出して車齢を取得する
+// 矢印 `->` 構文を持つ "Car" 構造体のインスタンスを返す。
+fn car_factory(color: String, motor: Transmission, roof: bool, miles: u32) -> Car {
+    // 要求に応じて新しい "Car "インスタンスを作成する
+    // - 最初の3つのフィールドを入力引数の値にバインドする
+    // - "age "フィールドが "miles "入力引数で "car_quality "関数を呼び出す。
+    Car {
+        color: color,
+        motor: motor,
+        roof: roof,
+        mileage: miles, // todo!("Replace `mileage: miles` with \\
+        `age` tuple field, call `car_quality()` with `miles` as \\
+        input argument");
+    }
+}
+\end{lstlisting}
+
+\item \texttt{car} 変数の初期化を修正します。
+
+\begin{enumerate}
+\item \texttt{mileage: miles} フィールドを \texttt{age} という名前のタプル フィールドに置き換えます。
+\item \texttt{age} フィールドは、 \texttt{car\_quality} 関数を \texttt{miles} 入力引数を使用して呼び出す必要があります。
+\end{enumerate}
+
+\item プログラムをビルドします。 次のセクションに進む前に、コードがコンパイルされることを確認してください。
+
+\end{enumerate}
+
+\subsubsection{main 関数の変数を設定する}
+
+これで、\texttt{main} 関数の操作を開始する準備ができました。 最初の手順で、プログラムで使用する変数を定義します。
+
+\begin{itemize}
+\item 自動車の色の配列
+\item 各自動車注文の構造体
+\item トランスミッションの種類を記述する列挙型
+\end{itemize}
+
+\begin{enumerate}
+\item \texttt{main} 関数の次のコード ブロックを既存のコードに追加します。 新しいコードは、ファイルの先頭または末尾に追加できます。
+
+\begin{lstlisting}[numbers=none]
+fn main() {
+    // 車の色配列の作成
+    let colors = todo!("Set the enum values: 0 = Blue, 1 = Green,\\
+                        2 = Red, 3 = Silver");
+
+    // 車種と初期値を宣言する
+    let mut car: Car = todo!("Create `car` as a `Car` struct");     
+    let mut engine: Transmission = todo!("Declare `engine` as a \\
+                   `Transmission` enum, initialize to `Manual`");
+}
+\end{lstlisting}
+
+\item \texttt{colors} 配列変数の定義を完了します。 自動車は、青、緑、赤、シルバーの 4 色のいずれかにすることができます。
+
+\item \texttt{car} 構造体および \texttt{engine} 列挙型変数の宣言構文を修正します。 \texttt{engine} 列挙型を "Manual" に初期化します。
+
+\begin{itembox}[l]{ヒント}
+両方の変数を変更可能として作成することを忘れないでください。
+\end{itembox}
+
+\item プログラムをビルドします。 次のセクションに進む前に、コードがエラーなしでコンパイルされることを確認してください。
+\end{enumerate}
+
+
+\subsubsection{自動車注文を遂行する関数を呼び出す}
+
+\texttt{main} 関数で、自動車注文を遂行する \texttt{car\_factory} 関数を呼び出します。 関数呼び出しでは、自動車の色が必要です。 \texttt{colors} 配列にインデックスを付ける方法を修正して、実際に期待された色を渡すようにする必要があります。
+
+\begin{enumerate}
+
+\item \texttt{main} 関数に次のコード ブロックを追加します。 このコードは、前の手順で追加した定義の後、かつ関数の右中かっこ \texttt{\}} の前に配置します。
+
+
+\begin{lstlisting}[numbers=none]
+    // トランスミッション1種類につき1台、計3台ご注文ください。
+
+    // Car order #1: New, Manual, Hard top
+    car = car_factory(String::from(todo!("Index into the `colors()`\\
+                                         array")), engine, true, 0);
+    println!("Car order 1: {:?}, Hard top = {}, {:?}, {}, {} miles",
+              car.age.0, car.roof, car.motor, car.color, car.age.1);
+
+    // Car order #2: Used, Semi-automatic, Convertible
+    engine = Transmission::SemiAuto;
+    car = car_factory(String::from(todo!("Index into the `colors()`\\
+                                       array")), engine, false, 100);
+    println!("Car order 2: {:?}, Hard top = {}, {:?}, {}, {} miles",
+             car.age.0, car.roof, car.motor, car.color, car.age.1);
+
+    // Car order #3: Used, Automatic, Hard top
+    engine = Transmission::Automatic;
+    car = car_factory(String::from(todo!("Index into the `colors()`\\
+                                        array")), engine, true, 200);
+    println!("Car order 3: {:?}, Hard top = {}, {:?}, {}, {} miles",
+              car.age.0, car.roof, car.motor, car.color, car.age.1);
+\end{lstlisting}
+
+
+\item \texttt{String::from} の呼び出しで \texttt{colors} 配列のインデックス付けを修正します。 \texttt{colors} 配列には 4 つの要素があるため、注文ごとに異なる色を使用するように試行します。
+
+\begin{itembox}[l]{ヒント}
+配列内の要素は、インデックス位置 0 から開始します。 最初の要素の値はインデックス位置 0 にあります。
+\end{itembox}
+
+\item プログラムをビルドします。 コードがエラーなしでコンパイルされることを確認します。 警告メッセージはすべて無視してかまいません。
+
+\end{enumerate}
+
+\subsubsection{プログラムの実行}
+
+プログラムが完了すると、この例のような出力が表示されます。
+
+\begin{lstlisting}[numbers=none]
+Car order 1: New, Hard top = true, Manual, Blue, 0 miles
+Car order 2: New, Hard top = false, SemiAuto, Green, 100 miles
+Car order 3: New, Hard top = true, Automatic, Red, 200 miles
+\end{lstlisting}
+
+注文 2 と 3 は中古車用ですが、 \texttt{car\_quality} 関数からは現在のところ New のみが返されます。 後の演習で、条件式を使用してそれを修正し、注文を変更する方法について確認します。
+
+
+\subsubsection{解決策}
+
+この Rust Playground 内で、プログラム出力をこの演習のソリューションと比較できます。
+
