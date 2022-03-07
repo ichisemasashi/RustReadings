@@ -1,0 +1,180 @@
+\subsection{演習: if/else 条件を処理する}
+
+この演習では、自動車工場プログラムに if/else テスト条件を追加して、式の結果に基づいて値を代入します。
+
+\texttt{car\_quality} 関数を、注文された車が "新車" か "中古" かを呼び出し元が識別できるように変更します。 走行距離をチェックする条件式を追加し、タプル値の代入方法を更新します。 \texttt{car\_factory} 関数で、if/else 式をいくつか使用して、プログラムのフローと出力を制御します。
+
+課題は、コンパイルして実できるようにサンプル コードを完成させることです。
+
+この演習用のサンプル コードを操作するには、次の 2 つの方法があります。
+
+\begin{itemize}
+\item コードをコピーし、ローカルの開発環境で編集します。
+\item 準備済みの Rust Playground 内でコードを開きます。
+\end{itemize}
+
+\begin{itembox}[l]{注意}
+サンプル コードで、\texttt{todo!} マクロを探します。 このマクロは、完了または更新する必要があるコードを示しています。
+\end{itembox}
+
+\subsubsection{サンプル コードを入手する}
+
+まず、エディターで既存のサンプル コードを開きます。
+
+\begin{enumerate}
+
+\item 次のコードをコピーしてローカルの開発環境で編集するか、この用意されている Rust プレイグラウンドでコードを開きます。
+
+
+\begin{lstlisting}[numbers=none]
+#[derive(PartialEq, Debug)]
+// Car構造体を宣言し、4つの名前付きフィールドで車両を記述する。
+struct Car { color: String, motor: Transmission, roof: bool, age: (Age, u32) }
+
+#[derive(PartialEq, Debug)]
+// Carトランスミッションの種類を表すenumを宣言する
+enum Transmission { Manual, SemiAuto, Automatic }
+
+#[derive(PartialEq, Debug)]
+// 車齢を表すenumを宣言する
+enum Age { New, Used }
+
+//////////////////////////////////////////////////
+
+// 入力引数の値をテストして車の品質を取得する
+// - miles (u32)
+// 車齢（"新車 "または "中古車"）と走行距離のタプルを返す。
+fn car_quality (miles: u32) -> (Age, u32) {
+
+    todo!("Add conditional expression: If car has accumulated miles,\\
+          return tuple for Used car with current mileage");
+
+    todo!("Return tuple for New car with zero miles");
+}
+
+//////////////////////////////////////////////////
+
+// 4つの入力引数の値を使って新しい "Car "を作る
+// - color (String)
+// - motor (Transmission enum)
+// - roof (boolean, true if the car has a hard top roof)
+// - miles (u32)
+// car_quality(miles)関数を呼び出して車齢を取得する
+// 矢印 `->` 構文を持つ "Car" 構造体のインスタンスを返す。
+fn car_factory(color: String, motor: Transmission,
+               roof: bool, miles: u32) -> Car {
+
+    // 車の注文に関する詳細を表示する
+    // - 中古車か新車か、ルーフの種類を確認する。
+    // - ルーフタイプに応じた新車・中古車の詳細表示
+    todo!("Add conditional expression: If car is Used age,
+           then check roof type");
+        todo!("Add conditional expression: If roof is a hard top,
+               print details");
+            // 車の注文の詳細を表示するために `println!` マクロを呼び出す
+            println!("Prepare a used car: {:?}, {}, Hard top, {} miles\n",
+                      motor, color, miles);  
+
+    // 要求された新しい "Car "インスタンスを作成する
+    // - 最初の3つのフィールドを入力引数の値にバインドする
+    // - car_quality(miles)から返されるタプルに "age "をバインドする。
+    Car {
+        color: color,
+        motor: motor,
+        roof: roof,
+        age: car_quality(miles)
+    }
+}
+
+fn main() {
+    // Car order #1: New, Manual, Hard top
+    car_factory(String::from("Orange"), Transmission::Manual, true, 0);
+
+    // Car order #2: Used, Semi-automatic, Convertible
+    car_factory(String::from("Red"), Transmission::SemiAuto, false, 565);
+
+    // Car order #3: Used, Automatic, Hard top
+    car_factory(String::from("White"), Transmission::Automatic, true, 3000);
+}
+\end{lstlisting}
+
+\item プログラムをビルドします。 次のセクションに進む前に、コードがコンパイルされることを確認してください。
+
+コードではまだ出力は表示されませんが、エラーなしでコンパイルされる必要があります。 コンパイラからの "警告" メッセージは無視してかまいません。 警告は、列挙型と構造体の定義を宣言したものの、これらをまだ使用していないことが原因で生成されます。
+
+\end{enumerate}
+
+\subsubsection{car\_quality 関数を更新する}
+
+\texttt{car\_quality} 関数は、自動車走行距離を入力引数として受け取ります。 前の演習で、走行距離 0 の "新車" に対して \texttt{quality} という名前のタプルを作成し、このタプルを呼び出し元の関数に返しました。
+
+走行距離をチェックする条件式を使用し、条件に基づいてタプルを設定するように関数を更新します。 宣言された変数にタプルを格納するのではなく、呼び出し元の関数に正しいタプルを送り返します。
+
+
+\begin{enumerate}
+
+\item \texttt{if/else} 条件式を追加して、注文車の走行距離が累積されている可能性があるかどうかをチェックします。 条件の結果に基づいて正しいタプル値を返します。
+
+\begin{lstlisting}[numbers=none]
+   todo!("Add conditional expression: If car has accumulated miles,
+          return tuple for Used car with current mileage");
+\end{lstlisting}
+
+\begin{itembox}[l]{ヒント}
+その自動車の走行距離が累積されている場合は、早い段階で呼び出し元の関数にタプル値を返します。
+\end{itembox}
+
+\item 自動車注文が "新車" の場合、返されるタプル値の走行距離が 0 に設定されます。
+\begin{lstlisting}[numbers=none]
+    todo!("Return tuple for New car with zero miles");
+\end{lstlisting}
+
+\item プログラムをビルドします。 次のセクションに進む前に、コードがコンパイルされることを確認してください。
+
+\end{enumerate}
+
+\subsubsection{car\_factory 関数を更新する}
+
+次に、 \texttt{car\_factory} 関数を更新します。 if/else 条件式を使用して、結果を作成および表示する自動車を記述します。 この式で、注文が新車か中古車かをチェックし、ルーフの種類も決定します。
+
+\begin{enumerate}
+
+\item \texttt{if/else} 条件式を追加して、注文が新車か中古車かをチェックしてから、\texttt{roof} の種類をチェックします。 注文車の詳細を出力します。
+
+
+\begin{lstlisting}[numbers=none]
+    // Show details about car order
+    // - Check if order is for Used or New car, then check the roof type 
+    // - Print details for New or Used car based on roof type
+    todo!("Add conditional expression: If car is Used age,
+           then check roof type");
+        todo!("Add conditional expression: If roof is a hard top,
+               print details");
+            // Call the `println!` macro to show the car order details
+            println!("Prepare a used car: {:?}, {}, Hard top, {} miles\n",
+                     motor, color, miles);                
+\end{lstlisting}
+
+\begin{itembox}[l]{ヒント}
+\texttt{quality} 変数の値をチェックし、"等価" 演算子 \texttt{==} を使用できます。
+\end{itembox}
+
+\item プログラムをビルドします。 コードがエラーなしでコンパイルされることを確認します。 警告メッセージはすべて無視してかまいません。
+
+\end{enumerate}
+
+\subsubsection{プログラムの実行}
+
+プログラムが完了すると、この例のような出力が表示されます。
+
+
+\begin{lstlisting}[numbers=none]
+Build a new car: Manual, Orange, Hard top, 0 miles
+Prepare a used car: SemiAuto, Red, Convertible, 565 miles
+Prepare a used car: Automatic, White, Hard top, 3000 miles
+\end{lstlisting}
+
+\subsubsection{解決策}
+
+この Rust Playground 内で、プログラム出力をこの演習のソリューションと比較できます。
+
