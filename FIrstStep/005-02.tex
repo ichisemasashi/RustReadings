@@ -1,0 +1,125 @@
+\subsection{ハッシュ マップの操作}
+
+Rust のもう 1 つの一般的なコレクション型はハッシュ マップです。 \texttt{HashMap<K, V>} 型では、各キー \texttt{K} とその値 \texttt{V} をマッピングすることでデータが格納されます。 ベクター内のデータには整数インデックスを使用してアクセスしますが、ハッシュ マップ内のデータにはキーを使用してアクセスします。
+
+ハッシュ マップ型は、オブジェクト、ハッシュ テーブル、ディクショナリのようなデータ項目の多くのプログラミング言語で使用されます。
+
+ベクターと同様に、ハッシュ マップも拡大可能です。 データはヒープに格納され、ハッシュ マップ項目へのアクセスは実行時にチェックされます。
+
+
+\subsubsection{ハッシュ マップを定義する}
+
+次の例では、ハッシュ マップを定義して書籍のレビューを追跡します。 ハッシュ マップ キーは書籍名であり、値は読者のレビューです。
+
+
+\begin{lstlisting}[numbers=none]
+use std::collections::HashMap;
+let mut reviews: HashMap<String, String> = HashMap::new();
+
+reviews.insert(String::from("Ancient Roman History"), 
+               String::from("Very accurate."));
+reviews.insert(String::from("Cooking with Rhubarb"),
+               String::from("Sweet recipes."));
+reviews.insert(String::from("Programming in Rust"),
+               String::from("Great examples."));
+\end{lstlisting}
+
+このコードをさらに詳しく調べてみましょう。 最初の行に、新しい種類の構文が表示あります。
+
+
+
+\begin{lstlisting}[numbers=none]
+use std::collections::HashMap;
+\end{lstlisting}
+
+\texttt{use} コマンドにより、Rust 標準ライブラリの \texttt{collections} 部分にある \texttt{HashMap} 定義がプログラムのスコープに取り込まれます。 この構文は、他のプログラミング言語で \texttt{import} を呼び出すことと似ています。
+
+\texttt{HashMap::new} メソッドを使用して空のハッシュ マップを作成します。 必要に応じてキーと値を追加または削除できるように、 \texttt{reviews} 変数を変更可能として宣言します。 この例では、ハッシュ マップ キーと値の両方で \texttt{String} 型が使用されます。
+
+
+\begin{lstlisting}[numbers=none]
+let mut reviews: HashMap<String, String> = HashMap::new();
+\end{lstlisting}
+
+\subsubsection{キーと値のペアを追加する}
+
+\texttt{insert(<key>, <value>)} メソッドを使用して、ハッシュ マップに要素を追加します。 コードでは、構文は \texttt{<hash\_map\_name>.insert()} です。
+
+\begin{lstlisting}[numbers=none]
+reviews.insert(String::from("Ancient Roman History"),
+               String::from("Very accurate."));
+\end{lstlisting}
+
+\subsubsection{キー値を取得する}
+
+ハッシュ マップにデータを追加した後、 \texttt{get(<key>)} メソッドを使用してキーの特定の値を取得できます。
+
+
+\begin{lstlisting}[numbers=none]
+// 具体的なレビューを探す
+let book: &str = "Programming in Rust";
+println!("\nReview for \'{}\': {:?}", book, reviews.get(book));
+\end{lstlisting}
+
+出力は次のようになります。
+
+\begin{lstlisting}[numbers=none]
+Review for 'Programming in Rust': Some("Great examples.")
+\end{lstlisting}
+
+\begin{itembox}[l]{注意}
+出力には、書籍レビューが単に "Great examples." ではなく、"Some("Great examples.")" として表示されることに注意してください。 \texttt{get} メソッドからは \texttt{Option<\&Value>} 型が返されるので、Rust によってメソッド呼び出しの結果が "Some()" 表記でラップされます。
+\end{itembox}
+
+\subsubsection{キーと値のペアを削除する}
+
+ハッシュ マップからエントリを削除するには、\texttt{.remove()} メソッドを使用します。 無効なハッシュ マップ キーに \texttt{get} メソッドを使用すると、 \texttt{get} メソッドから "None" が返されます。
+
+
+\begin{lstlisting}[numbers=none]
+// 書評を削除する
+let obsolete: &str = "Ancient Roman History";
+println!("\n'{}\' removed.", obsolete);
+reviews.remove(obsolete);
+
+// 削除された書評を確認する
+println!("\nReview for \'{}\': {:?}", obsolete, reviews.get(obsolete));
+\end{lstlisting}
+
+出力は次のようになります。
+
+\begin{lstlisting}[numbers=none]
+'Ancient Roman History' removed.
+Review for 'Ancient Roman History': None
+\end{lstlisting}
+
+この Rust Playground 内で、このコードを試し、ハッシュ マップを操作できます。
+
+\subsubsection{自分の知識をチェックする}
+
+次の質問に答えて、学習した内容を確認してください。
+
+
+\begin{enumerate}
+\item ユーザーの名前を電話番号に関連付けるアドレス帳を表すのに、どのようなデータ構造が最適ですか?
+
+\begin{itemize}
+\item タプル
+
+\item ベクトル
+
+\item 配列
+
+\item ハッシュ マップ
+\end{itemize}
+
+\item ハッシュ マップ要素を追加および削除するために使用できる標準メソッドは何ですか?
+\begin{itemize}
+\item \texttt{.add()} と \texttt{.remove()}
+
+\item \texttt{.insert()} および \texttt{.remove()}
+
+\item \texttt{.insert()} と \texttt{.delete()}
+\end{itemize}
+
+\end{enumerate}
