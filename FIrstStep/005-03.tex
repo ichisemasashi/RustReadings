@@ -1,0 +1,150 @@
+\subsection{演習: ハッシュ マップを使用して注文を追跡する}
+
+この演習では、ハッシュ マップを使用するために自動車工場プログラムを変更します。
+
+ハッシュ マップ キーと値のペアを使用して、自動車の注文に関する詳細を追跡し、出力を表示します。 ここでも、課題は、コンパイルして実行できるようにサンプル コードを完成させることです。
+
+この演習用のサンプル コードを操作するには、次の 2 つの方法があります。
+
+\begin{itemize}
+\item コードをコピーし、ローカルの開発環境で編集します。
+\item 準備済みの Rust Playground 内でコードを開きます。
+\end{itemize}
+
+\begin{itembox}[l]{注意}
+サンプル コードで、\texttt{todo!} マクロを探します。 このマクロは、完了または更新する必要があるコードを示しています。
+\end{itembox}
+
+\subsubsection{現在のプログラムを読み込む}
+
+最初の手順では、既存のプログラム コードを取得します。
+
+\begin{enumerate}
+
+\item 編集する既存のプログラム コードを開きます。 このコードには、データ型の宣言と、\texttt{car\_quality}、\texttt{car\_factory}、および \texttt{main} 関数の定義が含まれています。
+
+次のコードをコピーし、ローカルの開発環境で編集します。
+または、この準備済みの Rust Playground 内でコードを開きます。
+
+
+\begin{lstlisting}[numbers=none]
+#[derive(PartialEq, Debug)]
+struct Car { color: String, motor: Transmission,
+             roof: bool, age: (Age, u32) }
+
+#[derive(PartialEq, Debug)]
+enum Transmission { Manual, SemiAuto, Automatic }
+
+#[derive(PartialEq, Debug)]
+enum Age { New, Used }
+
+// 入力引数の値をテストして車の品質を取得する
+// - miles (u32)
+// 車齢（"新車 "または "中古車"）と走行距離のタプルを返す。
+fn car_quality (miles: u32) -> (Age, u32) {
+
+    // 走行距離が伸びていないか
+    // 中古車のための初期のタプルを返す
+    if miles > 0 {
+        return (Age::Used, miles);
+    }
+
+    // 新車のタプルを返す。returnキーワードやセミコロンは不要
+    (Age::New, miles)
+}
+
+// 入力引数で "Car "をビルドする
+fn car_factory(order: i32, miles: u32) -> Car {
+    let colors = ["Blue", "Green", "Red", "Silver"];
+
+    // パニックを防止する。colors 配列のカラーインデックスをチェックし、
+    // 必要に応じてリセットする。
+    // Valid color = 1, 2, 3, or 4
+    // If color > 4, reduce color to valid index
+    let mut color = order as usize;
+    if color > 4 {        
+        // color = 5 --> index 1, 6 --> 2, 7 --> 3, 8 --> 4
+        color = color - 4;
+    }
+
+    // モータータイプ、ルーフタイプの注文にバラエティーを持たせる。
+    let mut motor = Transmission::Manual;
+    let mut roof = true;
+    if order % 3 == 0 {          // 3, 6, 9
+        motor = Transmission::Automatic;
+    } else if order % 2 == 0 {   // 2, 4, 8, 10
+        motor = Transmission::SemiAuto;
+        roof = false;
+    }                            // 1, 5, 7, 11
+
+    // Return requested "Car"
+    Car {
+        color: String::from(colors[(color-1) as usize]),
+        motor: motor,
+        roof: roof,
+        age: car_quality(miles)
+    }
+}
+
+fn main() {
+    // カウンタ変数の初期化
+    let mut order = 1;
+    // 自動車をミュータブルな「Car」構造体として宣言する。
+    let mut car: Car;
+
+    // 6台の車を注文、リクエストごとに "order "をインクリメント
+    // Car order #1: Used, Hard top
+    car = car_factory(order, 1000);
+    println!("{}: {:?}, Hard top = {}, {:?}, {}, {} miles",
+     order, car.age.0, car.roof, car.motor, car.color, car.age.1);
+
+    // Car order #2: Used, Convertible
+    order = order + 1;
+    car = car_factory(order, 2000);
+    println!("{}: {:?}, Hard top = {}, {:?}, {}, {} miles",
+     order, car.age.0, car.roof, car.motor, car.color, car.age.1);    
+
+    // Car order #3: New, Hard top
+    order = order + 1;
+    car = car_factory(order, 0);
+    println!("{}: {:?}, Hard top = {}, {:?}, {}, {} miles",
+     order, car.age.0, car.roof, car.motor, car.color, car.age.1);
+
+    // Car order #4: New, Convertible
+    order = order + 1;
+    car = car_factory(order, 0);
+    println!("{}: {:?}, Hard top = {}, {:?}, {}, {} miles",
+     order, car.age.0, car.roof, car.motor, car.color, car.age.1);
+
+    // Car order #5: Used, Hard top
+    order = order + 1;
+    car = car_factory(order, 3000);
+    println!("{}: {:?}, Hard top = {}, {:?}, {}, {} miles",
+     order, car.age.0, car.roof, car.motor, car.color, car.age.1);
+
+    // Car order #6: Used, Hard top
+    order = order + 1;
+    car = car_factory(order, 4000);
+    println!("{}: {:?}, Hard top = {}, {:?}, {}, {} miles",
+     order, car.age.0, car.roof, car.motor, car.color, car.age.1);
+}
+\end{lstlisting}
+
+\item プログラムをビルドします。 次のセクションに進む前に、コードがコンパイルされ、実行されることを確認してください。
+\end{enumerate}
+
+
+次の出力が表示されます。
+
+
+\begin{lstlisting}[numbers=none]
+1: Used, Hard top = true, Manual, Blue, 1000 miles
+2: Used, Hard top = false, SemiAuto, Green, 2000 miles
+3: New, Hard top = true, Automatic, Red, 0 miles
+4: New, Hard top = false, SemiAuto, Silver, 0 miles
+5: Used, Hard top = true, Manual, Blue, 3000 miles
+6: Used, Hard top = true, Automatic, Green, 4000 miles
+\end{lstlisting}
+
+\subsubsection{注文の詳細を追跡するハッシュ マップを追加する}
+
