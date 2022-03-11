@@ -148,3 +148,156 @@ fn main() {
 
 \subsubsection{注文の詳細を追跡するハッシュ マップを追加する}
 
+現在のプログラムでは、各自動車の注文が満たされ、各注文の完了後に概要が出力されます。 \texttt{car\_factory} 関数を呼び出すたびに、注文の詳細を含む \texttt{Car} 構造体が返されて注文が満たされます。 結果は \texttt{car} 変数に格納されます。
+
+お気付きかもしれませんが、プログラムにはいくつかの重要な機能がありません。 すべての注文を追跡しているわけではありません。 \texttt{car} 変数には、現在の注文の詳細のみが保持されます。 \texttt{car\_factory} 関数からの結果で \texttt{car} 変数が更新されるたびに、前の注文の詳細が上書きされます。
+
+ファイリング システムの場合のようにすべての注文を追跡するには、プログラムを更新する必要があります。 このために、\texttt{<K, V>} ペアでハッシュ マップを定義します。 ハッシュ マップ キーは自動車の注文番号に対応します。 ハッシュ マップ値は、 \texttt{Car} 構造体で定義されているそれぞれの注文の詳細となります。
+
+\begin{enumerate}
+\item ハッシュ マップを定義するには、 \texttt{main} 関数の先頭の左中かっこ \texttt{\{} の直後に次のコードを追加します。
+
+
+\begin{lstlisting}[numbers=none]
+    // 車の注文のためのハッシュマップの初期化
+    // - Key: Car order number, i32
+    // - Value: Car order details, Car struct
+    use std::collections::HashMap;
+    let mut orders: HashMap<i32, Car> = HashMap;
+\end{lstlisting}
+
+\item \texttt{orders} ハッシュ マップを作成するステートメントの構文の問題を修正します。
+
+\begin{itembox}[l]{ヒント}
+ハッシュ マップを最初から作成しているので、おそらく \texttt{new()} メソッドを使用します。
+\end{itembox}
+
+\item プログラムをビルドします。 次のセクションに進む前に、コードがコンパイルされることを確認してください。 コンパイラからの警告メッセージは無視してかまいません。
+
+\end{enumerate}
+
+\subsubsection{ハッシュ マップに値を追加する}
+
+次の手順では、ハッシュ マップに自動車の満たされた各注文を追加します。
+
+\texttt{main} 関数では、自動車の各注文に対して \texttt{car_factory} 関数を呼び出します。 注文が満たされた後、\texttt{println!} マクロを呼び出して、 \texttt{car} 変数に格納されている注文の詳細を表示します。
+
+\begin{lstlisting}[numbers=none]
+    // Car order #1: Used, Hard top
+    car = car_factory(order, 1000);
+    println!("{}: {}, Hard top = {}, {:?}, {}, {} miles",
+     order, car.age.0, car.roof, car.motor, car.color, car.age.1);
+
+    ...
+
+    // Car order #6: Used, Hard top
+    order = order + 1;
+    car = car_factory(order, 4000);
+    println!("{}: {}, Hard top = {}, {:?}, {}, {} miles",
+     order, car.age.0, car.roof, car.motor, car.color, car.age.1);
+\end{lstlisting}
+
+新しいハッシュ マップを操作するために、これらのコード ステートメントを修正します。
+
+\begin{itemize}
+
+\item \texttt{car_factory} 関数の呼び出しを保持する。 返された各 \texttt{Car} 構造体は、ハッシュ マップに <K, V> ペアの一部として格納されます。
+
+\item \texttt{println!} マクロの呼び出しを更新して、ハッシュ マップに格納されている注文の詳細を表示する。
+
+\end{itemize}
+
+\begin{enumerate}
+
+\item \texttt{main} 関数で、 \texttt{car\_factory} 関数の呼び出しと、 \texttt{println!} マクロの付随する呼び出しを見つけます。
+
+\begin{lstlisting}[numbers=none]
+    // Car order #1: Used, Hard top
+    car = car_factory(order, 1000);
+    println!("{}: {}, Hard top = {}, {:?}, {}, {} miles",
+     order, car.age.0, car.roof, car.motor, car.color, car.age.1);
+
+    ...
+
+    // Car order #6: Used, Hard top
+    order = order + 1;
+    car = car_factory(order, 4000);
+    println!("{}: {}, Hard top = {}, {:?}, {}, {} miles",
+     order, car.age.0, car.roof, car.motor, car.color, car.age.1);
+\end{lstlisting}
+
+\item すべての自動車注文のステートメントの完全なセットを、次の修正後のコードに置き換えます。
+
+\begin{lstlisting}[numbers=none]
+    // Car order #1: Used, Hard top
+    car = car_factory(order, 1000);
+    orders(order, car);
+    println!("Car order {}: {:?}", order, orders.get(&order));
+
+    // Car order #2: Used, Convertible
+    order = order + 1;
+    car = car_factory(order, 2000);
+    orders(order, car);
+    println!("Car order {}: {:?}", order, orders.get(&order));
+
+    // Car order #3: New, Hard top
+    order = order + 1;
+    car = car_factory(order, 0);
+    orders(order, car);
+    println!("Car order {}: {:?}", order, orders.get(&order));
+
+    // Car order #4: New, Convertible
+    order = order + 1;
+    car = car_factory(order, 0);
+    orders(order, car);
+    println!("Car order {}: {:?}", order, orders.get(&order));
+
+    // Car order #5: Used, Hard top
+    order = order + 1;
+    car = car_factory(order, 3000);
+    orders(order, car);
+    println!("Car order {}: {:?}", order, orders.get(&order));
+
+    // Car order #6: Used, Hard top
+    order = order + 1;
+    car = car_factory(order, 4000);
+    orders(order, car);
+    println!("Car order {}: {:?}", order, orders.get(&order));
+\end{lstlisting}
+
+\item ここでプログラムをビルドしようとすると、コンパイル エラーが表示されます。 <K, V> ペアを \texttt{orders} ハッシュ マップに追加するステートメントには、構文の問題があります。 その問題がわかりますか。 それでは、注文をハッシュ マップに追加する各ステートメントの問題を修正しましょう。
+
+\begin{itembox}[l]{ヒント}
+\texttt{orders} ハッシュ マップに値を直接割り当てることはできません。 挿入を行うには、メソッドを使用する必要があります。
+\end{itembox}
+
+
+\end{enumerate}
+
+\subsubsection{プログラムの実行}
+
+プログラムが正常にビルドされた後、次の出力が表示されるはずです。
+
+\begin{lstlisting}[numbers=none]
+Car order 1: Some(Car { color: "Blue", motor: Manual,
+                        roof: true, age: ("Used", 1000) })
+Car order 2: Some(Car { color: "Green", motor: SemiAuto,
+                        roof: false, age: ("Used", 2000) })
+Car order 3: Some(Car { color: "Red", motor: Automatic,
+                        roof: true, age: ("New", 0) })
+Car order 4: Some(Car { color: "Silver", motor: SemiAuto,
+                        roof: false, age: ("New", 0) })
+Car order 5: Some(Car { color: "Blue", motor: Manual,
+                        roof: true, age: ("Used", 3000) })
+Car order 6: Some(Car { color: "Green", motor: Automatic,
+                        roof: true, age: ("Used", 4000) })
+\end{lstlisting}
+
+変更後のコードの出力が異なることに注目してください。 \texttt{println!} マクロでは、各値と対応するフィールド名を表示することによって、 \texttt{Car} 構造体の内容を表示します。
+
+次の演習では、ループ式を使用してコード内の冗長性を減らします。
+
+\subsubsection{解決策}
+
+この Rust Playground 内で、プログラム出力をこの演習のソリューションと比較できます。
+
