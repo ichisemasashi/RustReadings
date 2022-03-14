@@ -1,0 +1,143 @@
+\subsection{for、while、および loop 式を使用する}
+
+多くの場合、プログラムには、その場で繰り返す必要があるコードのブロックがあります。 ループ式を使用して、繰り返しの実行方法をプログラムに指示できます。 電話帳のすべてのエントリを出力するには、ループ式を使用して、最初のエントリから最後のエントリまでを出力する方法をプログラムに指示できます。
+
+Rust には、プログラムがコードのブロックを繰り返すようにする 3 つのループ式が用意されています。
+
+
+\begin{itemize}
+
+\item \texttt{loop}: 手動で停止されない限り、繰り返します。
+\item \texttt{while}: 条件が true の間は繰り返します。
+\item \texttt{for}: コレクション内のすべての値に対して繰り返します。
+
+\end{itemize}
+
+このユニットでは、これらの各ループ式について見ていきます。
+
+\subsubsection{単純にループを続ける}
+
+\texttt{loop} 式では、無限ループが作成されます。 このキーワードを使用すると、式本体のアクションを継続的に繰り返すことができます。 アクションは、ループを停止する直接アクションを実行するまで繰り返されます。
+
+次の例では、"We loop forever!" というテキストが出力されます。 独力では停止しません。 \texttt{println!} アクションが繰り返され続けます。
+
+\begin{lstlisting}[numbers=none]
+loop {
+    println!("We loop forever!");
+}
+\end{lstlisting}
+
+\texttt{loop} 式を使用する場合、ループを停止する唯一の方法は、プログラマが直接介入することです。 特定のコードを追加してループを停止させることができます。または、Ctrl+C などのキーボード命令を入力して、プログラムの実行を停止することもできます。
+
+\texttt{loop} 式を停止する最も一般的な方法は、 \texttt{break} キーワードを使用してブレーク ポイントを設定することです。
+
+\begin{lstlisting}[numbers=none]
+loop {
+    // Keep printing, printing, printing...
+    println!("We loop forever!");
+    // On the other hand, maybe we should stop!
+    break;                            
+}
+\end{lstlisting}
+
+プログラムによって \texttt{break} キーワードが検出されると、 \texttt{loop} 式の本体内のアクションの実行が停止され、次のコード ステートメントに進みます。
+
+\texttt{break} キーワードは、 \texttt{loop} 式の特殊な機能を示します。 \texttt{break} キーワードを使用すると、式本体内のアクションの繰り返しを停止でき、ブレーク ポイントで値を返すこともできます。
+
+次の例は、 \texttt{loop} 式で \texttt{break} キーワードを使用して、値も返す方法を示しています。
+
+
+\begin{lstlisting}[numbers=none]
+let mut counter = 1;
+// stop_loop is set when loop stops
+let stop_loop = loop {
+    counter *= 2;
+    if counter > 100 {
+        // Stop loop, return counter value
+        break counter;
+    }
+};
+// Loop should break when counter = 128
+println!("Break the loop at counter = {}.", stop_loop);
+\end{lstlisting}
+
+出力は次のようになります。
+
+\begin{lstlisting}[numbers=none]
+Break the loop at counter = 128.
+\end{lstlisting}
+
+loop 式の本体では、これらの連続したアクションが実行されます。
+
+\begin{enumerate}
+\item 変数 \texttt{stop\_loop} を宣言します。
+\item 変数の値を \texttt{loop} 式の結果にバインドするようにプログラムに指示します。
+\item ループを開始します。 \texttt{loop} 式の本体内のアクションを実行します。
+
+\textbf{ループ本体}
+
+\begin{enumerate}
+\item \texttt{counter} 値を現在の値の 2 倍にインクリメントします。
+\item \texttt{counter} 値を確認します。
+\item \texttt{counter} 値が 100 を超える場合:
+ループを中断し、 \texttt{counter} 値を返します。
+
+\item \texttt{counter} 値が 100 以下の場合:
+ループ本体でアクションを繰り返します。
+\end{enumerate}
+
+\item \texttt{stop\_loop} 値を、 \texttt{loop} 式の結果である \texttt{counter} 値に設定します。
+
+\end{enumerate}
+
+\texttt{loop} 式本体には複数のブレーク ポイントを含めることができます。 式に複数のブレーク ポイントがある場合は、すべてのブレーク ポイントから同じ型の値が返される必要があります。 すべての値が整数型、文字列型、ブール型などである必要があります。 ブレーク ポイントによって値が明示的に返されない場合、プログラムでは式の結果が空のタプル \texttt{()} として解釈されます。
+
+\subsubsection{while ループ}
+
+
+
+
+\begin{lstlisting}[numbers=none]
+
+\end{lstlisting}
+
+
+\begin{lstlisting}[numbers=none]
+
+\end{lstlisting}
+
+
+\begin{lstlisting}[numbers=none]
+
+\end{lstlisting}
+
+
+\begin{lstlisting}[numbers=none]
+
+\end{lstlisting}
+
+
+\begin{lstlisting}[numbers=none]
+
+\end{lstlisting}
+
+
+\begin{lstlisting}[numbers=none]
+
+\end{lstlisting}
+
+
+\begin{lstlisting}[numbers=none]
+
+\end{lstlisting}
+
+
+\begin{lstlisting}[numbers=none]
+
+\end{lstlisting}
+
+
+
+
+
+
