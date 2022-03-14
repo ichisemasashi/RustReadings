@@ -94,50 +94,102 @@ loop 式の本体では、これらの連続したアクションが実行され
 
 \subsubsection{while ループ}
 
+\texttt{while} ループでは、条件式が使用されます。 ループは、条件式が true のままである限り繰り返されます。 このキーワードを使用すると、条件式が false になるまで式本体内のアクションを実行できます。
+
+\texttt{while} ループは、ブール型のループ条件式を評価することによって開始されます。 条件式が \texttt{true} と評価された場合は、本体内のアクションが実行されます。 アクションが完了すると、制御が条件式に戻ります。 条件式が \texttt{false} に評価された場合、 \texttt{while} 式は停止します。
+
+次の例では、"We loop a while..." というテキストが出力されます。 ループの繰り返しごとに、"カウントが 5 未満" という条件がテストされます。 条件が true のままである場合は、式本体内のアクションが実行されます。 条件が true でなくなると、 \texttt{while} ループが停止し、プログラムは次のコード ステートメントに進みます。
+
+
+\begin{lstlisting}[numbers=none]
+while counter < 5 {
+    println!("We loop a while...");
+    counter = counter + 1;
+}
+\end{lstlisting}
+
+\subsubsection{これらの値のループ}
+
+\texttt{for} ループでは、反復子を使用して項目のコレクションが処理されます。 ループでは、コレクション内の各項目について、式本体内のアクションが繰り返されます。 この種類のループの繰り返しは "反復処理" と呼ばれます。 すべての反復処理が完了すると、ループが停止します。
+
+Rust では、配列、ベクター、ハッシュ マップなど、任意のコレクション型を反復処理できます。 Rust では、"反復子" を使用して、コレクション内の各項目の最初から最後まで移動します。
+
+\texttt{for} ループでは、反復子として一時変数が使用されます。 変数はループ式の先頭で暗黙的に宣言され、現在の値は各反復処理で設定されます。
+
+次のコードでは、コレクションは \texttt{big\_birds} 配列で、反復子の名前は \texttt{bird} です。
+
+
 
 
 
 \begin{lstlisting}[numbers=none]
-
+let big_birds = ["ostrich", "peacock", "stork"];
+for bird in big_birds
 \end{lstlisting}
+
+コレクション内の項目にアクセスするには、\texttt{iter()} メソッドを使用します。 \texttt{for} 式により、反復子の現在の値が \texttt{iter()} メソッドの結果にバインドされます。 式本体では、反復子の値を操作できます。
+
 
 
 \begin{lstlisting}[numbers=none]
-
+let big_birds = ["ostrich", "peacock", "stork"];
+for bird in big_birds.iter() {
+    println!("The {} is a big bird.", bird);
+}
 \end{lstlisting}
 
+出力は次のようになります。
 
 \begin{lstlisting}[numbers=none]
-
+The ostrich is a big bird.
+The peacock is a big bird.
+The stork is a big bird.
 \end{lstlisting}
 
+反復子を作成するもう 1 つの簡単な方法は、範囲表記 \texttt{a..b} を使用することです。 反復子は \texttt{a} 値から開始し、1 つのステップで \texttt{b} に進みますが、値 \texttt{b} は使用しません。
 
 \begin{lstlisting}[numbers=none]
-
+for number in 0..5 {
+    println!("{}", number * 2);
+}
 \end{lstlisting}
 
+このコードでは、0、1、2、3、および 4 の数値が反復処理されます。 ループの反復ごとに値が \texttt{number} 変数にバインドされます。
+
+出力は次のようになります。
 
 \begin{lstlisting}[numbers=none]
-
+0
+2
+4
+6
+8
 \end{lstlisting}
 
+この Rust Playground 内で、このコードを実行してループを調べることができます。
 
-\begin{lstlisting}[numbers=none]
+\subsubsection{自分の知識をチェックする}
 
-\end{lstlisting}
+次の質問に答えて、学習した内容を確認してください。
 
+\begin{enumerate}
 
-\begin{lstlisting}[numbers=none]
+\item コレクション内のすべてのデータが確実に処理されるようにするには、どのような種類の反復が最適ですか?
+\begin{itemize}
+\item \texttt{while <x> is true}
 
-\end{lstlisting}
+\item \texttt{for <i> in <x>}
 
+\item \texttt{loop until stopped}
+\end{itemize}
 
-\begin{lstlisting}[numbers=none]
+どのキーワードを指定すると、 \texttt{loop} 式が終了しますか?
+\begin{itemize}
+\item \texttt{stop}
 
-\end{lstlisting}
+\item \texttt{halt}
 
+\item \texttt{break}
+\end{itemize}
 
-
-
-
-
+\end{enumerate}
