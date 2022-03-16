@@ -1,0 +1,122 @@
+\subsection{演習: ループを使用してデータを反復処理する}
+
+この演習では、ループを使用して自動車の注文を反復処理するように自動車工場プログラムを変更します。
+
+\texttt{main} 関数を更新して、注文の完全なセットを処理するループ式を追加します。 ループ構造は、コード内の冗長性を減らすのに役立ちます。 コードを簡略化することで、注文金額を簡単に増やすことができます。
+
+\texttt{car\_factory} 関数では、別のループを追加して、範囲外の値での実行時のパニックを回避します。
+
+課題は、コンパイルして実できるようにサンプル コードを完成させることです。
+
+この演習用のサンプル コードを操作するには、次の 2 つの方法があります。
+
+\begin{itemize}
+\item コードをコピーし、ローカルの開発環境で編集します。
+\item 準備済みの Rust Playground 内でコードを開きます。
+\end{itemize}
+
+
+\begin{itembox}[l]{注意}
+サンプル コードで、\texttt{todo!} マクロを探します。 このマクロは、完了または更新する必要があるコードを示しています。
+\end{itembox}
+
+\subsubsection{プログラムを読み込む}
+
+前回の演習でプログラム コードを閉じた場合は、この準備済みの Rust Playground 内でコードを再び開くことができます。
+
+プログラムをリビルドし、コンパイラ エラーなしで実行されることを確認してください。
+
+\subsubsection{ループ式を使用してアクションを繰り返す}
+
+さらに多くの注文をサポートするには、プログラムを更新する必要があります。 現在のコード構造では、冗長なステートメントを使用して 6 つの注文をサポートしています。 冗長性は扱いにくく、維持するのが困難です。
+
+ループ式を使用して各注文を作成するアクションを繰り返すことで、構造を簡略化できます。 簡略化されたコードを使用して、多数の注文をすばやく作成できます。
+
+\begin{enumerate}
+
+\item \texttt{main} 関数で、次のステートメントを \texttt{main} します。 このコード ブロックでは、 \texttt{order} 変数を定義して設定し、自動車の注文に対して \texttt{car\_factory} 関数と \texttt{println!} マクロを呼び出し、各注文を \texttt{orders} ハッシュ マップに挿入します。
+
+
+\begin{lstlisting}[numbers=none]
+    // Order 6 cars
+    // - Increment "order" after each request
+    // - Add each order <K, V> pair to "orders" hash map
+    // - Call println! to show order details from the hash map
+
+    // Initialize order variable
+    let mut order = 1;
+
+    // Car order #1: Used, Hard top
+    car = car_factory(order, 1000);
+    orders.insert(order, car);
+    println!("Car order {}: {:?}", order, orders.get(&order));
+
+    ...
+
+    // Car order #6: Used, Hard top
+    order = order + 1;
+    car = car_factory(order, 4000);
+    orders.insert(order, car);
+    println!("Car order {}: {:?}", order, orders.get(&order));
+\end{lstlisting}
+
+\item 削除されたステートメントを次のコード ブロックに置き換えます。
+
+\begin{lstlisting}[numbers=none]
+    // Start with zero miles
+    let mut miles = 0;
+
+    todo!("Add a loop expression to fulfill orders for 6 cars,
+           initialize `order` variable to 1") {
+
+        // Call car_factory to fulfill order
+        // Add order <K, V> pair to "orders" hash map
+        // Call println! to show order details from the hash map        
+        car = car_factory(order, miles);
+        orders.insert(order, car);
+        println!("Car order {}: {:?}", order, orders.get(&order));
+
+        // Reset miles for order variety
+        if miles == 2100 {
+            miles = 0;
+        } else {
+            miles = miles + 700;
+        }
+    }
+\end{lstlisting}
+
+\item 6 台の自動車の注文を作成するアクションを繰り返すループ式を追加します。 1 に初期化された \texttt{order} 変数が必要です。
+
+\item プログラムをビルドします。 コードがエラーなしでコンパイルされることを確認します。
+\end{enumerate}
+
+次の例のような出力が表示されます。
+
+
+\begin{lstlisting}[numbers=none]
+Car order 1: Some(Car { color: "Blue", motor: Manual,
+                        roof: true, age: ("New", 0) })
+Car order 2: Some(Car { color: "Green", motor: SemiAuto,
+                        roof: false, age: ("Used", 700) })
+Car order 3: Some(Car { color: "Red", motor: Automatic,
+                        roof: true, age: ("Used", 1400) })
+Car order 4: Some(Car { color: "Silver", motor: SemiAuto,
+                        roof: false, age: ("Used", 2100) })
+Car order 5: Some(Car { color: "Blue", motor: Manual,
+                        roof: true, age: ("New", 0) })
+Car order 6: Some(Car { color: "Green", motor: Automatic,
+                        roof: true, age: ("Used", 700) })
+\end{lstlisting}
+
+\subsubsection{自動車の注文を 11 に増やす}
+
+
+
+
+
+
+
+
+
+
+
