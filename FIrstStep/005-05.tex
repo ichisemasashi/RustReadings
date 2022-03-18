@@ -110,12 +110,103 @@ Car order 6: Some(Car { color: "Green", motor: Automatic,
 
 \subsubsection{自動車の注文を 11 に増やす}
 
+これで、プログラムではループを使用して、6 台の自動車の注文を満たすようになりました。 6 台を超える自動車を注文するとどうなりますか?
+
+\begin{enumerate}
+
+\item 11 台の自動車を注文するには、 \texttt{main} 関数でループ式を次のように更新します。
 
 
+\begin{lstlisting}[numbers=none]
+    todo!("Update the loop expression to create 11 cars");
+\end{lstlisting}
+
+\item プログラムトをリビルドします。 実行時に、プログラムはパニックになります。
+
+\begin{lstlisting}[numbers=none]
+Compiling playground v0.0.1 (/playground)
+    Finished dev [unoptimized + debuginfo] target(s) in 1.26s
+    Running `target/debug/playground`
+thread 'main' panicked at 'index out of bounds:
+    the len is 4 but the index is 4', src/main.rs:34:29
+\end{lstlisting}
+
+\end{enumerate}
+
+この問題を解決する方法を見てみましょう。
+
+\subsubsection{ループ式を使用して実行時のパニックを防ぐ}
+
+\texttt{car\_factory} 関数では、if または else 式を使用して、 \texttt{colors} 配列の \texttt{color} インデックスの値を確認します。
 
 
+\begin{lstlisting}[numbers=none]
+    // Prevent panic: Check color index for colors array, reset as needed
+    // Valid color = 1, 2, 3, or 4
+    // If color > 4, reduce color to valid index
+    let mut color = order as usize;
+    if color > 4 {        
+        // color = 5 --> index 1, 6 --> 2, 7 --> 3, 8 --> 4
+        color = color - 4;
+    }
+\end{lstlisting}
+
+\texttt{colors} 配列には 4 つの要素があり、有効な \texttt{color} インデックスの範囲は 0 から 3 です。 条件式では、 \texttt{color} インデックスが 4 より大きいかどうかを確認します (\texttt{color} インデックスが 4 に等しいかどうかは確認しません。 後でこの関数で、配列にインデックスを付けて自動車の色を割り当てるときに、インデックス値から 1 を減算します (\texttt{color - 1})。 \texttt{color} 値 4 は配列への \texttt{colors[3]} として処理されます)。
+
+現在の if または else 式は、8 台以下の自動車を注文するときに、実行時のパニックを防ぐのに適しています。 しかし、11 台の自動車を注文する場合、プログラムは 9 台目の注文でパニックになります。 より堅牢になるように式を調整する必要があります。 このように改善するために、別のループ式を使用します。
+
+\begin{enumerate}
+
+\item \texttt{car\_factory} 関数で、if/else 条件ステートメントをループ式に置き換えます。 \texttt{color} インデックス値が 4 より大きい場合の実行時のパニックを防ぐために、次の擬似コード ステートメントを修正します。
+
+\begin{lstlisting}[numbers=none]
+    // Prevent panic: Check color index, reset as needed
+    // If color = 1, 2, 3, or 4 - no change needed
+    // If color > 4, reduce to color to a valid index
+    let mut color = order as usize;
+    todo!("Replace `if/else` condition with a loop to prevent run-time panic
+           for color > 4");
+\end{lstlisting}
+
+\begin{itembox}[l]{ヒント}
+この場合、if/else 条件からループ式への変更は、実際には非常にシンプルです。
+\end{itembox}
+
+\item プログラムをビルドします。 コードがエラーなしでコンパイルされることを確認します。
+
+\end{enumerate}
+
+次の出力が表示されます。
 
 
+\begin{lstlisting}[numbers=none]
+Car order 1: Some(Car { color: "Blue", motor: Manual,
+                        roof: true, age: ("New", 0) })
+Car order 2: Some(Car { color: "Green", motor: SemiAuto,
+                        roof: false, age: ("Used", 700) })
+Car order 3: Some(Car { color: "Red", motor: Automatic,
+                        roof: true, age: ("Used", 1400) })
+Car order 4: Some(Car { color: "Silver", motor: SemiAuto,
+                        roof: false, age: ("Used", 2100) })
+Car order 5: Some(Car { color: "Blue", motor: Manual,
+                        roof: true, age: ("New", 0) })
+Car order 6: Some(Car { color: "Green", motor: Automatic,
+                        roof: true, age: ("Used", 700) })
+Car order 7: Some(Car { color: "Red", motor: Manual,
+                        roof: true, age: ("Used", 1400) })
+Car order 8: Some(Car { color: "Silver", motor: SemiAuto,
+                        roof: false, age: ("Used", 2100) })
+Car order 9: Some(Car { color: "Blue", motor: Automatic,
+                        roof: true, age: ("New", 0) })
+Car order 10: Some(Car { color: "Green", motor: SemiAuto,
+                         roof: false, age: ("Used", 700) })
+Car order 11: Some(Car { color: "Red", motor: Manual,
+                         roof: true, age: ("Used", 1400) })
+\end{lstlisting}
+
+\subsubsection{解決策}
+
+この Rust Playground 内で、プログラム出力をこの演習のソリューションと比較できます。
 
 
 
