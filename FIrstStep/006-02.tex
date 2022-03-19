@@ -1,0 +1,34 @@
+\subsection{panic! を使用する致命的なエラーについて学習する}
+
+パニックは、Rust の最も単純なエラー処理メカニズムです。
+
+\texttt{panic!} マクロを使用して、現在のスレッドをパニックにすることができます。 これにより、エラー メッセージの出力、リソースの解放が行われ、プログラムを終了します。
+
+次のシンプルな例は、\texttt{panic!} マクロを呼び出す方法を示しています。
+
+
+\begin{lstlisting}[numbers=none]
+fn main() {
+    panic!("Farewell!");
+}
+\end{lstlisting}
+
+このプログラムは、状態コード 101 で終了し、次のメッセージを出力します。
+
+\begin{lstlisting}[numbers=none]
+thread 'main' panicked at 'Farewell!', src/main.rs:2:5
+\end{lstlisting}
+
+上記のパニック メッセージの最後の部分は、パニックの場所を示しています。 これは、src/main.rs ファイルの 2 行目の 5 番目の文字で発生しています。
+
+一般に、プログラムが復旧できない状態、つまりエラーから回復する方法がまったくない場合には、 \texttt{panic!} を使用する必要があります。
+
+Rust は、0 で除算を行ったときや、次のコードで示すように、配列、ベクター、またはハッシュ マップに存在しないインデックスにアクセスを試みたときなど、一部の操作でパニックになります。
+
+
+\begin{lstlisting}[numbers=none]
+let v = vec![0, 1, 2, 3];
+println!("{}", v[6]); // this will cause a panic!
+\end{lstlisting}
+
+次のユニットでは、プログラムをパニックにすることなく、このようなエラーを処理する方法について学習します。
