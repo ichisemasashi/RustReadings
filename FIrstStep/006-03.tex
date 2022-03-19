@@ -76,7 +76,7 @@ There is no fruit! :(
 
 上のコードでは、前の例と同じインデックス (0、2、99) を反復処理し、それぞれで \texttt{fruits} 式を使用して \texttt{fruits} ベクターから値を取得します。
 
-\texttt{fruits} ベクターには \texttt{&str} 要素が含まれているため、この式の結果は \texttt{Option<&str>} 型であることがわかります。 次に、 の値に対して match 式を使用し、各バリアントに対する一連のアクションを定義します。 Rust ではこれらの分岐を "match アーム" と呼びます。各アームで、一致した値に対する 1 つの可能な結果を処理できます。
+\texttt{fruits} ベクターには \texttt{\&str} 要素が含まれているため、この式の結果は \texttt{Option<\&str>} 型であることがわかります。 次に、 の値に対して match 式を使用し、各バリアントに対する一連のアクションを定義します。 Rust ではこれらの分岐を "match アーム" と呼びます。各アームで、一致した値に対する 1 つの可能な結果を処理できます。
 
 最初のアームでは、新しい変数の \texttt{fruit\_name} が導入されています。 この変数は、 \texttt{Some} 値内のすべての値と一致します。 \texttt{fruit\_name} のスコープは \texttt{fruit\_name} 式に限定されるので、match に導入する前に \texttt{fruit\_name} を宣言しても意味がありません。
 
@@ -94,7 +94,7 @@ for &index in [0, 2, 99].iter() {
 \end{lstlisting}
 
 \begin{itembox}[l]{注意}
-一致の最初のパターンは \texttt{Some(&"coconut")} です (文字列リテラルの前の \texttt{&} に注意してください)。 これは、\texttt{fruits.get(index)} が \texttt{Option<&&str>} または文字列スライスへの参照のオプションを返すためです。 パターン内で \texttt{&} を削除することは、\texttt{Option<&str>} (文字列スライスへの省略可能な参照 "\texttt{&}"、省略可能な文字列スライス) との照合を試みていることを意味します。 現時点では、これが完全に意味を持たない可能性があるため、参照については説明しませんでした。 今のところは、\texttt{&} によって型が適切に整列されることだけを覚えておいてください。
+一致の最初のパターンは \texttt{Some(\&"coconut")} です (文字列リテラルの前の \texttt{\&} に注意してください)。 これは、\texttt{fruits.get(index)} が \texttt{Option<\&\&str>} または文字列スライスへの参照のオプションを返すためです。 パターン内で \texttt{\&} を削除することは、\texttt{Option<\&str>} (文字列スライスへの省略可能な参照 "\texttt{\&}"、省略可能な文字列スライス) との照合を試みていることを意味します。 現時点では、これが完全に意味を持たない可能性があるため、参照については説明しませんでした。 今のところは、\texttt{\&} によって型が適切に整列されることだけを覚えておいてください。
 \end{itembox}
 
 この例を Rust Playground で実行してみることができます。
