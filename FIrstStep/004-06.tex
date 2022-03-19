@@ -29,7 +29,8 @@
 \begin{lstlisting}[numbers=none]
 #[derive(PartialEq, Debug)]
 // Car構造体を宣言し、4つの名前付きフィールドで車両を記述する。
-struct Car { color: String, motor: Transmission, roof: bool, age: (Age, u32) }
+struct Car { color: String, motor: Transmission,
+             roof: bool, age: (Age, u32) }
 
 #[derive(PartialEq, Debug)]
 // Carトランスミッションの種類を表すenumを宣言する

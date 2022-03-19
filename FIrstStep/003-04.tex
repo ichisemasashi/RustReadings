@@ -77,7 +77,8 @@ Rust のすべてのプリミティブ数値型では、加算、減算、乗算
 
 \begin{lstlisting}[numbers=none]
 // 加算・減算・乗算
-println!("1 + 2 = {} and 8 - 5 = {} and 15 * 3 = {}", 1u32 + 2, 8i32 - 5, 15 * 3);
+println!("1 + 2 = {} and 8 - 5 = {} and 15 * 3 = {}",
+         1u32 + 2, 8i32 - 5, 15 * 3);
 
 // 整数と浮動小数点の除算
 println!("9 / 2 = {} but 9.0 / 2.0 = {}", 9u32 / 2, 9.0 / 2.0);
@@ -162,7 +163,8 @@ let string_1 = "miley ";
 // データ型 "str "を参照構文"&str "で指定する。
 let string_2: &str = "ace";
 
-println!("{} is a {}{}{}{}.", smiley_face, character_1, string_1, character_2, string_2);
+println!("{} is a {}{}{}{}.", 
+  smiley_face, character_1, string_1, character_2, string_2);
 \end{lstlisting}
 
 この例の出力を次に示します。
