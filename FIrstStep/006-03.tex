@@ -1,0 +1,199 @@
+\subsection{Option 型を使用して値がない場合に対処する}
+
+Rust 標準ライブラリには、値が存在しない可能性がある場合に使用する \texttt{Option<T>} 列挙型が用意されています。 \texttt{Option<T>} は、Rust コードで広く使用されています。 これは、存在する場合と空の場合がある値を操作するのに便利です。
+
+他の多くの言語では、これは \texttt{null} または \texttt{nil} を使用してモデル化されますが、Rust では他の言語と相互運用できるコードの外部で \texttt{null} は使用されません。 これは、値が省略可能である場合に、Rust が明示的であることを意味します。 多くの言語で、 \texttt{String} を受け取る関数は、実際には \texttt{String} または \texttt{null} のいずれかを受け取る可能性がありますが、Rust では、同じ関数で受け取れるのは、実際の \texttt{String} だけです。 Rust で省略可能な文字列をモデル化する場合は、 \texttt{Option} 型でそれを明示的にラップする必要があります: \texttt{Option<String>}。
+
+\texttt{Option<T>} は、2 つのバリアントのどちらかになります。
+
+\begin{lstlisting}[numbers=none]
+enum Option<T> {
+    None,     // The value doesn't exist
+    Some(T),  // The value exists
+}
+\end{lstlisting}
+
+\texttt{Option<T>} 列挙型の宣言の \texttt{<T>} の部分は、型 \texttt{T} がジェネリックであり、 \texttt{Option} 列挙型の \texttt{Some} バリアントに関連付けられていることを示します。
+
+前のセクションで説明したように、 \texttt{None} と \texttt{Some} は型ではなく、 \texttt{Option<T>} 型のバリアントです。 これは特に、関数が引数として \texttt{Some} または \texttt{None} を取ることはできず、Option<T> のみを受け取ることを意味します。
+
+前のユニットでは、ベクターの存在しないインデックスにアクセスしようとすると、プログラムが \texttt{panic} になるということを説明しましたが、 \texttt{Vec::get} メソッドを使用することでそれを回避できます。このメソッドを使用すると、パニックにならずに \texttt{Option} 型が返されます。 指定したインデックスに値が存在する場合、それは \texttt{Option::Some(value)} バリアントにラップされます。 インデックスが範囲外の場合は、代わりに \texttt{Option::None} 値が返されます。
+
+試しに使ってみましょう。 次のコードは、ローカル環境で実行することも、Rust Playground で実行することもできます。
+
+\begin{lstlisting}[numbers=none]
+let fruits = vec!["banana", "apple", "coconut", "orange", "strawberry"];
+
+// pick the first item:
+let first = fruits.get(0);
+println!("{:?}", first);
+
+// pick the third item:
+let third = fruits.get(2);
+println!("{:?}", third);
+
+// pick the 99th item, which is non-existent:
+let non_existent = fruits.get(99);
+println!("{:?}", non_existent);
+\end{lstlisting}
+
+出力は次のようになります。
+
+\begin{lstlisting}[numbers=none]
+Some("banana")
+Some("coconut")
+None
+\end{lstlisting}
+
+出力されたメッセージを見ると、 \texttt{fruits} 配列内の既存のインデックスにアクセスする最初の 2 回の試行は \texttt{Some("banana")} および \texttt{Some("coconut")} という結果になりましたが、99 番目の要素をフェッチしようとすると、パニックにはならずに \texttt{None} 値 (どのようなデータにも関連付けられていない) が返されたことがわかります。
+
+実際には、取得した列挙型バリアントに応じてプログラムの動作を決定する必要があります。 しかし、\texttt{Some(data)} バリアント内のデータにアクセスするにはどうすればよいでしょうか。
+
+\subsubsection{パターン マッチング}
+
+Rust には \texttt{match} と呼ばれる強力な演算子があります。 これを使用してパターンを指定すると、プログラムのフローを制御できます。 \texttt{match} によって一致するパターンが検出されると、指定したコードがそのパターンを使って実行されます。
+
+
+\begin{lstlisting}[numbers=none]
+let fruits = vec!["banana", "apple", "coconut", "orange", "strawberry"];
+for &index in [0, 2, 99].iter() {
+    match fruits.get(index) {
+        Some(fruit_name) => println!("It's a delicious {}!", fruit_name),
+        None => println!("There is no fruit! :("),
+    }
+}
+\end{lstlisting}
+
+この例を Rust Playground で実行してみることができます。
+
+出力は次のようになります。
+
+\begin{lstlisting}[numbers=none]
+It's a delicious banana!
+It's a delicious coconut!
+There is no fruit! :(
+\end{lstlisting}
+
+上のコードでは、前の例と同じインデックス (0、2、99) を反復処理し、それぞれで \texttt{fruits} 式を使用して \texttt{fruits} ベクターから値を取得します。
+
+\texttt{fruits} ベクターには \texttt{&str} 要素が含まれているため、この式の結果は \texttt{Option<&str>} 型であることがわかります。 次に、 の値に対して match 式を使用し、各バリアントに対する一連のアクションを定義します。 Rust ではこれらの分岐を "match アーム" と呼びます。各アームで、一致した値に対する 1 つの可能な結果を処理できます。
+
+最初のアームでは、新しい変数の \texttt{fruit\_name} が導入されています。 この変数は、 \texttt{Some} 値内のすべての値と一致します。 \texttt{fruit\_name} のスコープは \texttt{fruit\_name} 式に限定されるので、match に導入する前に \texttt{fruit\_name} を宣言しても意味がありません。
+
+バリアント内の値に応じて異なる処理を行うように、match 式をさらに調整できます。 たとえば、次のコードを実行すると、ココナッツはすばらしいという事実を強調することができます。
+
+\begin{lstlisting}[numbers=none]
+let fruits = vec!["banana", "apple", "coconut", "orange", "strawberry"];
+for &index in [0, 2, 99].iter() {
+    match fruits.get(index) {
+        Some(&"coconut") => println!("Coconuts are awesome!!!"),
+        Some(fruit_name) => println!("It's a delicious {}!", fruit_name),
+        None => println!("There is no fruit! :("),
+    }
+}
+\end{lstlisting}
+
+\begin{itembox}[l]{注意}
+一致の最初のパターンは \texttt{Some(&"coconut")} です (文字列リテラルの前の \texttt{&} に注意してください)。 これは、\texttt{fruits.get(index)} が \texttt{Option<&&str>} または文字列スライスへの参照のオプションを返すためです。 パターン内で \texttt{&} を削除することは、\texttt{Option<&str>} (文字列スライスへの省略可能な参照 "\texttt{&}"、省略可能な文字列スライス) との照合を試みていることを意味します。 現時点では、これが完全に意味を持たない可能性があるため、参照については説明しませんでした。 今のところは、\texttt{&} によって型が適切に整列されることだけを覚えておいてください。
+\end{itembox}
+
+この例を Rust Playground で実行してみることができます。
+
+出力は次のようになります。
+
+\begin{lstlisting}[numbers=none]
+It's a delicious banana!
+Coconuts are awesome!!!
+There is no fruit! :(
+\end{lstlisting}
+
+文字列値が \texttt{"coconut"} の場合は、最初のアームが一致し、実行フローを決定するために使用されることに注意してください。
+
+match 式を使用する場合は常に、次の規則に注意してください。
+
+\begin{itemize}
+\item \texttt{match} アームは、上から下に評価されます。 一般的なケースより前に、限定的なケースを定義する必要があります。そうしないと、限定的なケースが一致せず、評価されません。
+\item \texttt{match} アームは、入力の型で可能なすべての値をカバーする必要があります。 完全でないパターン リストと照合しようとすると、コンパイラ エラーが発生します。
+\end{itemize}
+
+\subsubsection{if let 式}
+
+Rust には、値が 1 つのパターンに準拠しているかどうかをテストする便利な方法が用意されています。
+
+次の例では、 \texttt{match} への入力は \texttt{Option<u8>} 値になります。 \texttt{match} 式では、その入力値が \texttt{match} の場合にのみコードが実行されます。
+
+\begin{lstlisting}[numbers=none]
+let a_number: Option<u8> = Some(7);
+match a_number {
+    Some(7) => println!("That's my lucky number!"),
+    _ => {},
+}
+\end{lstlisting}
+
+この場合、 \texttt{None} バリアントと \texttt{Some(7)} と一致しないすべての \texttt{Some<u8>} 値を無視します。 ワイルドカード パターンは、このような状況に適しています。 他のすべてのパターンの後に \texttt{\_} (アンダースコア) ワイルドカード パターンを追加して、"\texttt{\_}" と一致させることができます。それを使用して、match アームを網羅するというコンパイラの要求を満たします。
+
+このコードを統合するには、if let 式を使用します。
+
+\begin{lstlisting}[numbers=none]
+let a_number: Option<u8> = Some(7);
+if let Some(7) = a_number {
+    println!("That's my lucky number!");
+}
+\end{lstlisting}
+
+if let 演算子を使用すると、パターンと式が比較されます。 式とパターンが一致した場合、if ブロックが実行されます。 if let 式が便利なのは、1 つのパターンに一致させる必要がある場合に、match 式のすべての定型コードが不要になることです。
+
+\subsubsection{unwrap と expect を使用する}
+
+\texttt{unwrap} メソッドを使用すると、 \texttt{Option} 型の内部の値に直接アクセスすることができます。 ただし、バリアントが \texttt{None} の場合、このメソッドはパニックになるため、注意してください。
+
+次に例を示します。
+
+\begin{lstlisting}[numbers=none]
+let gift = Some("candy");
+assert_eq!(gift.unwrap(), "candy");
+
+let empty_gift: Option<&str> = None;
+assert_eq!(empty_gift.unwrap(), "candy"); // This will panic!
+\end{lstlisting}
+
+この場合、コードは次の出力でパニックになります。
+
+\begin{lstlisting}[numbers=none]
+    thread 'main' panicked at 'called `Option::unwrap()` on a `None` value',
+       src/main.rs:6:27
+\end{lstlisting}
+
+\texttt{expect} メソッドは \texttt{unwrap} と同じように動作しますが、2 番目の引数で指定するカスタム パニック メッセージが提供されます。
+
+\begin{lstlisting}[numbers=none]
+let a = Some("value");
+assert_eq!(a.expect("fruits are healthy"), "value");
+
+let b: Option<&str> = None;
+b.expect("fruits are healthy"); // panics with `fruits are healthy`
+\end{lstlisting}
+
+出力は次のようになります。
+
+\begin{lstlisting}[numbers=none]
+    thread 'main' panicked at 'fruits are healthy', src/main.rs:6:7
+\end{lstlisting}
+
+これらの関数はパニックになる可能性があるため、使用しないことをお勧めします。 代わりに、次のいずれかの方法を検討してください。
+
+\begin{itemize}
+\item パターン マッチングを使用し、 \texttt{None} のケースを明示的に処理します。
+\item \texttt{unwrap\_or} のような、パニックにならない同様のメソッドを呼び出します。このメソッドを使用すると、バリアントが \texttt{None} の場合は既定値が返され、バリアントが \texttt{Some(value)} の場合は内部値が返されます。    
+\end{itemize}
+
+\begin{lstlisting}[numbers=none]
+assert_eq!(Some("dog").unwrap_or("cat"), "dog");
+assert_eq!(None.unwrap_or("cat"), "cat");
+\end{lstlisting}
+
+
+
+
+
+
