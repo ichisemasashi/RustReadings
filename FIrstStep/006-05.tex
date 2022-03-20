@@ -1,0 +1,61 @@
+\subsection{Result 型を使用してエラーを処理する}
+
+Rust には、エラーを返して伝達するための \texttt{Result<T, E>} 列挙型が用意されています。 慣例として、 \texttt{Ok(T)} バリアントは成功を表し、値が含まれています。 \texttt{Err(E)} バリアントはエラーを表し、エラー値が含まれています。
+
+\texttt{Result<T, E>} 列挙型は次のように定義されます。
+
+
+\begin{lstlisting}[numbers=none]
+enum Result<T, E> {
+    Ok(T):  // A value T was obtained.
+    Err(E): // An error of type E was encountered instead.
+}
+\end{lstlisting}
+
+値が "\texttt{Option}" 可能性を記述する \texttt{Option} 型とは対照的に、 \texttt{Result} 型は "\texttt{Result}"する可能性がある場合に最適です。
+
+\texttt{Result} 型にも \texttt{unwrap} メソッドと \texttt{expect} メソッドがあり、次のいずれかが実行されます。
+
+\begin{itemize}
+\item \texttt{Ok} バリアントの場合は、その内部の値が返されます。
+\item バリアントが \texttt{Err} である場合は、プログラムをパニックにします。
+\end{itemize}
+
+\texttt{Result} の動作を見てみましょう。 次のコード例では、次のいずれかを返す \texttt{safe\_division} 関数の実装があります。
+
+\begin{itemize}
+\item 成功した除算の結果を保持する \texttt{Ok} バリアントの \texttt{Result} 値。
+\item 構造体 \texttt{DivisionByZeroError} を保持する \texttt{Err} バリアント。これは、失敗した除算を通知します。
+\end{itemize}
+
+\begin{lstlisting}[numbers=none]
+#[derive(Debug)]
+struct DivisionByZeroError;
+
+fn safe_division(dividend: f64, divisor: f64) ->
+                             Result<f64, DivisionByZeroError> {
+    if divisor == 0.0 {
+        Err(DivisionByZeroError)
+    } else {
+        Ok(dividend / divisor)
+    }
+}
+
+fn main() {
+    println!("{:?}", safe_division(9.0, 3.0));
+    println!("{:?}", safe_division(4.0, 0.0));
+    println!("{:?}", safe_division(0.0, 2.0));
+}
+\end{lstlisting}
+
+このプログラムを確認するには、Rust Playground に移動してください。
+
+出力は次のようになります。
+
+\begin{lstlisting}[numbers=none]
+Ok(3.0)
+Err(DivisionByZeroError)
+Ok(0.0)
+\end{lstlisting}
+
+\texttt{DivisionByZeroError} 構造体の前にある \texttt{\#[derive(Debug)]} の部分は、デバッグのために型を印刷可能にするよう Rust コンパイラに指示するマクロです。 この概念については、後の "特徴" モジュールで詳しく説明します。
