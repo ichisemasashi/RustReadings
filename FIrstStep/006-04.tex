@@ -1,0 +1,54 @@
+\subsection{演習 - Option 型を使用して値がない場合に対処する}
+
+この演習では、 \texttt{Person} 構造体を受け取り、その完全な名前が格納された \texttt{String} を返す関数の実装を完了します。
+
+一部の人にはミドル ネームがないこと、ただしある場合は戻り値に含める必要があることに、注意してください。
+
+編集する必要があるのは \texttt{build\_full\_name} 関数だけです。 姓と名を処理する部分は既に実装されていることに注意してください。
+
+\begin{lstlisting}[numbers=none]
+struct Person {
+    first: String,
+    middle: Option<String>,
+    last: String,
+}
+
+fn build_full_name(person: &Person) -> String {
+    let mut full_name = String::new();
+    full_name.push_str(&person.first);
+    full_name.push_str(" ");
+
+    // TODO: この関数のうち、人物のミドルネームを処理する部分を実装する。
+
+    full_name.push_str(&person.last);
+    full_name
+}
+
+fn main() {
+    let john = Person {
+        first: String::from("James"),
+        middle: Some(String::from("Oliver")),
+        last: String::from("Smith"),
+    };
+    assert_eq!(build_full_name(&john), "James Oliver Smith");
+
+    let alice = Person {
+        first: String::from("Alice"),
+        middle: None,
+        last: String::from("Stevens"),
+    };
+    assert_eq!(build_full_name(&alice), "Alice Stevens");
+
+    let bob = Person {
+        first: String::from("Robert"),
+        middle: Some(String::from("Murdock")),
+        last: String::from("Jones"),
+    };
+    assert_eq!(build_full_name(&bob), "Robert Murdock Jones");
+}
+\end{lstlisting}
+
+
+上記のコードを実行し、すべての \texttt{assert\_eq!} 式がパニックにならずにパスすることを確認します。 Rust Playground でコードを編集することもできます。
+
+
