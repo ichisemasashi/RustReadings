@@ -1,0 +1,154 @@
+\subsection{借用について}
+
+前のモジュールでは、値に所有者がどのように存在するかについて学習しました。 変数間で所有権を移動して、値の所有権を譲渡します。 数値などの単純な値の場合のように、 \texttt{Copy} 特性を実装する型では所有権を譲渡できません。
+
+''複製'' プロセスを使用して、値を \textbf{明示的に} コピーすることもできます。 \texttt{clone} メソッドを呼び出し、コピーされる新しい値を取得します。そうすれば、元の値は移動されずに残り、引き続き自由に使用できます。
+
+関数やその他の変数で特定のデータを完全に所有せずに使用できれば便利ではないでしょうか。
+
+この種の機能は、''参照''を使用することで利用できます。 参照を使用すると、所有権を取得せずに値を "借用" できます。
+
+
+\begin{lstlisting}[numbers=none]
+let greeting = String::from("hello");
+let greeting_reference = &greeting; // `greeting` を借用するが、
+                      // 文字列データは `greeting` が所有したままである。
+println!("Greeting: {}", greeting); // まだ `greeting` を使用することができます。
+\end{lstlisting}
+
+上記のコードでは、 \texttt{greeting} は \texttt{\&} を使用して借用されています。 \texttt{greeting\_reference} の型は \texttt{\&String} でした。 \texttt{greeting} を借用しただけであり、所有権を移動していないため、 \texttt{greeting\_reference} を作成した後に引き続き \texttt{greeting} を使用することができます。
+
+\subsubsection{関数における参照}
+
+この例は、 \texttt{greeting\_reference} を実際に何かのために使用してはいないので、それほど面白くありません。 関数での参照の使用方法を見てみましょう。
+
+\begin{lstlisting}[numbers=none]
+fn print_greeting(message: &String) {
+  println!("Greeting: {}", message);
+}
+
+fn main() {
+  let greeting = String::from("Hello");
+  print_greeting(&greeting); // `print_greeting` は `String` ではなく
+                //  `&String` を受け取るので、 `&` で `greeting` を借用する。
+  print_greeting(&greeting); // `greeting` は `print_greeting` に
+                             // 移動しなかったので、再び使用することができます。
+}
+\end{lstlisting}
+
+借用によって、完全な所有権を取得せずに値を使用することができます。 しかし、これから見ていくように、値を借用することは、完全に所有している値を使用して実行できる処理が全部できるわけではないことを意味します。
+
+\subsubsection{借用値を変更する}
+
+借用した値を変換しようとするとどうなるでしょうか。
+
+\begin{lstlisting}[numbers=none]
+fn change(message: &String) {
+  message.push_str("!"); // メッセージの末尾に「！」を付けるようにしています
+}
+
+fn main() {
+  let greeting = String::from("Hello");
+  change(&greeting); 
+}
+\end{lstlisting}
+
+このコードはコンパイルされません。 代わりに、次のコンパイラ エラーが表示されます。
+
+\begin{lstlisting}[numbers=none]
+error[E0596]: cannot borrow `*message` as mutable, \\
+                      as it is behind a `&` reference
+ --> src/main.rs:2:3
+  |
+1 | fn change(message: &String) {
+  |                    ------- help: consider changing this \\
+                               to be a mutable reference: `&mut String`
+2 |   message.push_str("!"); // We try to add a "!" to the end of our message
+  |   ^^^^^^^ `message` is a `&` reference, so the data it refers to \\
+                                       cannot be borrowed as mutable
+\end{lstlisting}
+
+コンパイラ エラーを詳しく調べると、型パラメーターを から \texttt{\&mut String} に変更して参照を "変更可能" に変更することについてのヒントがわかります。 元の値を変更可能として宣言する必要もあります。
+
+\begin{lstlisting}[numbers=none]
+fn main() {
+    let mut greeting = String::from("hello");
+    change(&mut greeting);
+}
+
+fn change(text: &mut String) {
+    text.push_str(", world");
+}
+\end{lstlisting}
+
+"不変の借用" と呼ばれる \texttt{\&} 借用では、データを読み取ることはできますが、変更はできません。 "変更可能な借用" と呼ばれる \texttt{\&mut} 借用では、データの読み取りと書き込みの両方を行うことができます。
+
+\subsubsection{借用と変更可能な参照}
+
+次に、Rust のメモリ管理の実際の中心的な部分について説明します。 不変および変更可能な参照には、もう 1 つ違いがあります。それは Rust プログラムの構築方法に根本的な影響を与えるものです。 任意の型の \texttt{T} の値を借用する場合は、次の規則が適用されます。
+
+コードでは、次の ''いずれか'' の定義を実装する必要がありますが、 \textbf{両方を同時に実装する必要はありません。}
+
+\begin{itemize}
+\item 1 つ以上の不変の参照 (\texttt{\&T})
+\item 必ず 1 つの変更可能な参照 (\texttt{\&mut T})
+\end{itemize}
+
+次のコードでは定義が許可されないため、コンパイルは失敗します。
+
+\begin{lstlisting}[numbers=none]
+fn main() {
+    let mut value = String::from("hello");
+
+    let ref1 = &mut value;
+    let ref2 = &mut value;
+
+    println!("{}, {}", ref1, ref2);
+}
+\end{lstlisting}
+
+
+\begin{lstlisting}[numbers=none]
+    error[E0499]: cannot borrow `value` as mutable more than once at a time
+     --> src/main.rs:5:16
+      |
+    4 |     let ref1 = &mut value;
+      |                ---------- first mutable borrow occurs here
+    5 |     let ref2 = &mut value;
+      |                ^^^^^^^^^^ second mutable borrow occurs here
+    6 |
+    7 |     println!("{}, {}", ref1, ref2);
+      |                        ---- first borrow later used here
+\end{lstlisting}
+
+不変の参照を変更可能な参照と混在させようとすることもできますが、コンパイラは依然としてエラーになります。
+
+\begin{lstlisting}[numbers=none]
+fn main() {
+    let mut value = String::from("hello");
+
+    let ref1 = &value;
+    let ref2 = &mut value;
+
+    println!("{}, {}", ref1, ref2);
+}
+\end{lstlisting}
+
+
+\begin{lstlisting}[numbers=none]
+    error[E0502]: cannot borrow `value` as mutable because\\
+                  it is also borrowed as immutable
+     --> src/main.rs:5:16
+      |
+    4 |     let ref1 = &value;
+      |                ------ immutable borrow occurs here
+    5 |     let ref2 = &mut value;
+      |                ^^^^^^^^^^ mutable borrow occurs here
+    6 |
+    7 |     println!("{}, {}", ref1, ref2);
+      |                        ---- immutable borrow later used here
+\end{lstlisting}
+
+この制限は、最初は厳しく思えるかもしれませんが、借用のこの側面により、データの競合が決して生じないことを含め、Rust コードで多くの問題を防ぐことができます。
+
+
