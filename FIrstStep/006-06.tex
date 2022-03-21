@@ -1,0 +1,161 @@
+\subsection{演習 - Result 型を使用してエラーを処理する}
+
+この演習では、コンピューターからファイルを読み取るプログラムにエラー処理を追加します。 サンプル プログラムでは、関数 \texttt{read\_file\_contents} はその 1 つの入力として \texttt{PathBuf} 構造体を受け取り、 \texttt{Result<String, io::Error>} を返します。 この関数によって、次のタスクが実行されます。
+
+\begin{enumerate}
+
+\item 変更可能な空の \texttt{String} 変数を作成します。
+\item 指定されたパスにあるファイルにアクセスします。
+\item \texttt{read_to_string} メソッドを使用して、ファイルの内容を \texttt{String} 変数に読み取ります。
+\item 変更された \texttt{String} 変数を返します。
+
+\end{enumerate}
+
+コードの詳細を次に示します。
+
+\begin{itemize}
+
+\item このプログラムでは、いくつかの構造体と特性を使用します。 最初の 3 行のコードによって、これらのデータ型がスコープに入れられます。
+\item いくつかの \texttt{match} アームによって、 \texttt{file\_handle} や \texttt{io\_error} のような変数が導入されます。 これらのスコープは \texttt{match} 式に限定されているため、 \texttt{match} の前のコードでは宣言されません。
+\item \texttt{open} メソッドからは \texttt{Result<File, Error>} 列挙型が返されます。 エラーが発生しない場合は、 \texttt{Ok} バリアントでラップされたファイル ハンドルが返されます。
+\item \texttt{read\_to\_string} メソッドによって、戻り値ではなく、渡された \texttt{string} パラメーターにファイルの内容が追加されます。
+\item このプログラムでは、 \texttt{match} 式を使用して値が変数に割り当てられます。 その代入ステートメント内では、 \texttt{match} アームを使用して関数から早く戻ることもできます。
+
+\end{itemize}
+
+\subsubsection{サンプル プログラムを開く}
+
+この演習用のサンプル コードを操作するには、次の 2 つの方法があります。
+
+\begin{itemize}
+\item 次のコードをコピーし、ローカルの開発環境で編集します。
+\item この準備済みの Rust Playground 内でコードを開きます。
+\end{itemize}
+
+\subsubsection{ローカルの開発環境で編集する}
+
+このコードをローカル コンピューターで実行するには、src/main.rs ファイルでコードを記述します。 このファイルは、Cargo プロジェクトのルートにある必要があります。 新しい Cargo プロジェクトの設定方法についてわからないことがある場合は、このラーニング パスの最初のモジュールを確認してください。
+
+\subsubsection{Rust Playground を試す}
+
+Rust Playground での演習を完了するには、独自のコードを src/main.rs という名前のファイルとして読み取ります。 このファイルは、独自の仮想パスにあります。
+
+
+\begin{lstlisting}[numbers=none]
+use std::fs::File;
+use std::io::{Error, Read};
+use std::path::PathBuf;
+
+fn read_file_contents(path: PathBuf) -> Result<String, Error> {
+    let mut string = String::new();
+
+    // Access a file at a specified path
+    // ---------------------------------
+    // TODO #1:
+    // - Pass variable to `file` variable on success, or
+    // - Return from function early if there's an error
+    let mut file: File = match File::open(path) {
+        Ok(file_handle) => todo!("Pass variable to `file` variable on success"),
+        Err(io_error) => todo!("Return from function early if there's an error")
+    };
+
+    // Read file contents into `String` variable with `read_to_string`
+    // ---------------------------------
+    // Success path is already filled in
+    // TODO #2: Return from function early if there's an error
+    match file.read_to_string(&mut string) {
+        Ok(_) => (),
+        Err(io_error) => todo!("Return from function early if there's an error")
+    };
+
+    // TODO #3: Return `string` variable as expected by function signature
+    todo!("Return `string` variable")
+}
+
+fn main() {
+    if read_file_contents(PathBuf::from("src/main.rs")).is_ok() {
+        println!("The program found the main file.");
+    }
+    if read_file_contents(PathBuf::from("non-existent-file.txt")).is_err() {
+        println!("The program reported an error for\\
+                 the file that doesn't exist.");
+    }
+}
+\end{lstlisting}
+
+\subsubsection{成功と失敗のシナリオを処理する}
+
+最初のタスクでは、成功と失敗のシナリオを処理するためのコードを追加します。
+
+\begin{itembox}[l]{注意}
+サンプル コードで、 \texttt{TODO} コメントと \texttt{todo!} マクロを探します。 コメントは、完了するタスクについて説明しています。 このマクロは、終了または更新する必要があるコードを示しています。
+\end{itembox}
+
+\texttt{match} 式内での成功と失敗のシナリオを処理するために、次のコードを更新します。
+
+\begin{lstlisting}[numbers=none]
+    // Access a file at a specified path
+    // ---------------------------------
+    // TODO #1:
+    // - Pass variable to `file` variable on success, or
+    // - Return from function early if there's an error
+    let mut file: File = match File::open(path) {
+        Ok(file_handle) => todo!("Pass variable to `file` variable on success"),
+        Err(io_error) => todo!("Return from function early if there's an error")
+    };
+\end{lstlisting}
+
+タスクが完了したら、次のプログラミングの目標に対処します。
+
+\begin{itemize}
+\texttt{Ok(value)} ケースでは、内部の \texttt{value} を指定する必要があります。
+\texttt{Err(error_value)} 値は \texttt{read\_file\_contents} 関数の早い段階で返す必要があります。
+\end{itemize}
+
+\subsubsection{エラー処理のシナリオ}
+
+次のタスクでは、エラー処理を追加します。 \texttt{Err} ケースをサポートするために、次のコードを更新します。
+
+\begin{lstlisting}[numbers=none]
+    // Read file contents into `String` variable with `read_to_string`
+    // ---------------------------------
+    // Success path is already filled in
+    // TODO #2: Return from function early if there's an error
+    match file.read_to_string(&mut string) {
+        Ok(_) => (),
+        Err(io_error) => todo!("Return from function early if there's an error")
+    };
+\end{lstlisting}
+
+このタスクを行う際には、次のプログラミングの目標に対処します。
+
+\begin{itemize}
+\texttt{Ok(value)} ケースでは、内部の \texttt{value} を指定する必要があります。
+\texttt{Err(error_value)} 値は \texttt{read\_file\_contents} 関数の早い段階で返す必要があります。
+\end{itemize}
+
+\subsubsection{文字列を返す}
+
+最後のタスクは、変更された \texttt{String} 変数を \texttt{Ok} バリアント内で返すようにコードを修正することです。 実装では、戻り値が関数の予想される正常な出力であることを表す必要があります。
+
+\begin{lstlisting}[numbers=none]
+fn read_file_contents(path: PathBuf) -> Result<String, Error> {
+    ...
+    // TODO #3: Return `string` variable as expected by function signature
+    todo!("Return `string` variable")
+}
+\end{lstlisting}
+
+\subsubsection{プログラムをビルドする}
+
+タスクを完了したら、プログラムをビルドして実行します。 次の出力が表示されます。
+
+\begin{lstlisting}[numbers=none]
+The program found the main file.
+The program reported an error for the file that doesn't exist.
+\end{lstlisting}
+
+\subsubsection{解決策}
+
+この Rust Playground 内で、コードを準備済みソリューションと比較することができます。
+
