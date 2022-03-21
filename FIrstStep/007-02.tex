@@ -1,0 +1,187 @@
+\subsection{所有権とは}
+
+Rust には、メモリを管理するための所有権システムが含まれています。 コンパイル時、所有権システムでは一連のルールがチェックされ、所有権機能により、速度を低下することなくプログラムを実行できることが保証されます。
+
+所有権について理解するために、まず、Rust の "スコープ ルール" と "移動セマンティクス" を見てみましょう。
+
+\subsubsection{スコープ ルール}
+
+Rust の場合、他のほとんどのプログラミング言語と同様に、変数は特定の "スコープ" 内でのみ有効です。 Rust では、スコープは多くの場合、中かっこ \texttt{\{\}} を使用して示されます。 一般的なスコープには、関数本体と、 \texttt{if}、 \texttt{else} 、 \texttt{match} の分岐が含まれます。
+
+\begin{itembox}[l]{注意}
+Rust では、"変数" は "バインド" と呼ばれることがよくあります。 これは、Rust の "変数" がそれほど可変ではないことが理由です。これらは、既定では変更できないため、多くの場合、変更されません。 代わりに、多くの場合、名前をデータに "結び付ける" と考えます。"バインド" という言い方はここから来ています。 このモジュールでは、"変数" と "バインド" という用語を同じ意味で使用します。
+\end{itembox}
+
+たとえば、スコープ内に定義されている文字列である \texttt{mascot} 変数があるとします。
+
+\begin{lstlisting}[numbers=none]
+// `mascot` は有効ではなく、まだ宣言されていないため、ここでは使用できません。
+{
+    let mascot = String::from("ferris");   // `mascot`はこの時点から有効です。
+    // `mascot`でなにかする。
+}
+// このスコープが終わったので、`mascot`はもう有効でなく、使用できません。
+\end{lstlisting}
+
+スコープの外で \texttt{mascot} を使用しようとすると、この例のようなエラーが表示されます。
+
+\begin{lstlisting}[numbers=none]
+{
+    let mascot = String::from("ferris");
+}
+println!("{}", mascot);
+\end{lstlisting}
+
+
+\begin{lstlisting}[numbers=none]
+    error[E0425]: cannot find value `mascot` in this scope
+     --> src/main.rs:5:20
+      |
+    5 |     println!("{}", mascot);
+      |                    ^^^^^^ not found in this scope
+\end{lstlisting}
+
+この例は、Rust Playground でオンラインで実行できます。
+
+変数は、宣言されているポイントからそのスコープの末尾まで有効です。
+
+\subsubsection{所有権と削除}
+
+Rust では、スコープの概念にひねりを加えています。 オブジェクトは、スコープ外に出るたびに "削除" されます。変数を削除すると、関連付けられているすべてのリソースが解放されます。 ファイルの変数の場合、ファイルは閉じられることになります。 関連付けられたメモリが割り当てられている変数の場合、そのメモリは解放されます。
+
+Rust において、バインドが削除されたときに解放される "関連付けられた" ものを含むバインドは、それらのものを "所有する" と言います。
+
+上の例では、 \texttt{mascot} 変数は、関連付けられた \texttt{String} データを所有しています。 \texttt{String} 自体で、その文字列の文字を保持するヒープ割り当てメモリが所有されます。 スコープの終わりで \texttt{mascot} は "削除" され、所有している \texttt{String} が削除されます。最後に、 \texttt{String} が所有するメモリが解放されます。
+
+
+
+\begin{lstlisting}[numbers=none]
+{
+    let mascot = String::from("ferris");
+    // mascotがここで落ちました。文字列データのメモリはここで解放されます。
+
+}
+\end{lstlisting}
+
+\subsubsection{移動セマンティクス}
+
+場合によっては、変数に関連付けられているものがスコープの最後に削除されないようにしたいことがあります。 代わりに、バインド間で項目の所有権を移転することができます。
+
+最も簡単な例は、新しいバインドを宣言する場合です。
+
+\begin{lstlisting}[numbers=none]
+{
+    let mascot = String::from("ferris");
+    // mascotの所有権を変数ferrisに譲渡する。
+    let ferris = mascot;
+    // ferrisはここでドロップされます。文字列データのメモリはここで解放されます。
+}
+\end{lstlisting}
+
+ここで重要なのは、所有権が移転されると、古い変数は有効でなくなることです。 上の例では、 \texttt{String} の所有権を \texttt{mascot} から \texttt{ferris} に移転した後、 \texttt{mascot} 変数は使用できなくなります。
+
+Rust では、"所有権の移転" は "移動" と呼ばれます。 つまり、上の例では、 \texttt{String} 値の所有権は \texttt{mascot} から \texttt{ferris} に "移動" されています。
+
+\texttt{String} を \texttt{mascot} から \texttt{ferris} に移動した後に \texttt{mascot} を使用しようとすると、コードはコンパイラでコンパイルされません。
+
+\begin{lstlisting}[numbers=none]
+{
+    let mascot = String::from("ferris");
+    let ferris = mascot;
+    println!("{}", mascot) // 文字列データの所有権をmascotからferrisに移した後、
+                           // mascotを使うようにします。
+}
+\end{lstlisting}
+
+
+\begin{lstlisting}[numbers=none]
+    error[E0382]: borrow of moved value: `mascot`
+    --> src/main.rs:4:20
+     |
+   2 |     let mascot = String::from("ferris");
+     |         ------ move occurs because `mascot` has type `String`,\\
+                      which does not implement the `Copy` trait
+   3 |     let ferris = mascot;
+     |                  ------ value moved here
+   4 |     println!("{}", mascot);
+     |                    ^^^^^^ value borrowed here after move
+\end{lstlisting}
+
+この結果は、"移動後の使用" というコンパイル エラーとして知られています。
+
+\begin{itembox}[l]{重要}
+Rust では、一度に 1 つのものだけがデータを "所有" できます。
+\end{itembox}
+
+\subsubsection{関数における所有権}
+
+引数として関数に渡される文字列の例を見てみましょう。 何かを関数に引数として渡すと、それが関数に "移動" します。
+
+\begin{lstlisting}[numbers=none]
+fn process(input: String) {}
+
+fn caller() {
+    let s = String::from("Hello, world!");
+    process(s); // `s` にあった文字列の所有権が `process` に移動した。
+    process(s); // Error! 所有権はすでに移動しています。
+}
+\end{lstlisting}
+
+コンパイラは、 \texttt{s} 値が "\texttt{s}" されたというエラーを返します。
+
+\begin{lstlisting}[numbers=none]
+    error[E0382]: use of moved value: `s`
+     --> src/main.rs:6:13
+      |
+    4 |     let s = String::from("Hello, world!");
+      |         - move occurs because `s` has type `String`,
+                  which does not implement the `Copy` trait
+    5 |     process(s); // Transfers ownership of `s` to `process`
+      |             - value moved here
+    6 |     process(s); // Error! ownership already transferred.
+      |             ^ value used here after move
+\end{lstlisting}
+
+前のスニペットでわかるように、 \texttt{process} の最初の呼び出しにより、変数 \texttt{s} の所有権が移転されます。 コンパイラによって所有権が追跡されるので、 \texttt{process} の 2 回目の呼び出しによりエラーが発生します。 リソースが移動された後は、以前の所有者を使用できなくなります。
+
+このパターンは、Rust コードの記述方法に大きな影響を与えます。 これは、Rust によって提示されるメモリの安全性の保証の中核です。
+
+他のプログラミング言語では、関数に渡される前に、 \texttt{s} 変数の \texttt{String} 値を暗黙的にコピーできます。 しかし、Rust では、このアクションは発生しません。
+
+Rust では、所有権の移転 (つまり、移動) が既定の動作です。
+
+\subsubsection{移動せずにコピーする}
+
+上記の (かなり有用な) コンパイラ エラー メッセージにおいて、 \texttt{Copy} 特性が示されていることに気付いた方もいるでしょう。 特性についてはまだ説明していませんが、 \texttt{Copy} 特性を実装する値は移動されず、代わりにコピーされます。
+
+\texttt{Copy} 特性を実装する値 \texttt{u32} を見てみましょう。 次のコードでは上記の破損したコードをミラーリングしますが、問題なくコンパイルされます。
+
+
+\begin{lstlisting}[numbers=none]
+fn process(input: u32) {}
+
+fn caller() {
+    let n = 1u32;
+    process(n); // `process`にコピーされた `n` の数値の所有権
+    process(n); // `n` は移動したのではなく、コピーされたので、再び使用することができます。
+}
+\end{lstlisting}
+
+数値のような単純型では、型を ''コピー'' します。 \texttt{Copy} 特性を実装します。つまり、移動されず、コピーされます。 ほとんどの単純型で同じアクションが発生します。 数値のコピーは低コストであるため、これらの値をコピーするのが理にかなっています。 文字列、ベクター、またはその他の複合型は、コピーするとコストが非常に高くなる場合があるため、 \texttt{Copy} 特性を実装せず、代わりに移動されます。
+
+\subsubsection{Copy を実装しない型をコピーする}
+
+前述したエラーを回避する方法の 1 つは、移動前に型を "明示的に" コピーすることです。これは Rust で複製と呼ばれます。 \texttt{.clone} を呼び出すと、メモリが複製され、新しい値が生成されます。 新しい値は移動されるので、古い値を引き続き使用できます。
+
+\begin{lstlisting}[numbers=none]
+fn process(s: String) {}
+
+fn main() {
+    let s = String::from("Hello, world!");
+    process(s.clone()); // `s` からクローンした別の値を渡します。
+    process(s); // s は、一度も動かしていないので、まだ使用できます。
+}
+\end{lstlisting}
+
+
+この方法は便利ですが、 \texttt{clone} を呼び出すたびにデータの完全なコピーが作成されるため、コードの実行速度が低下するおそれがあります。 この方法には多くの場合、メモリ割り当てや他のコストが高い操作が含まれます。 "参照" を使用して値を "借用" する場合は、これらのコストを回避できます。 次のユニットでは、参照を使用する方法について学習します。
