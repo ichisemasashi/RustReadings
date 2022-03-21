@@ -1,0 +1,243 @@
+\subsection{有効期間を使用した参照の検証}
+
+
+参照の使用には問題が伴います。 参照で参照される項目は、そのすべての参照を追跡しません。 これにより問題が発生するおそれがあります。項目が削除され、そのリソースが解放された場合、この解放されたばかりの無効なメモリを指す参照がないことをどうすれば確認できるでしょうか?
+
+多くの場合、C や C++ などの言語では、ポインターが、既に解放されている項目を指す場合に問題が発生します。 この問題は、"ダングリング ポインター" と呼ばれています。 さいわい、Rust ではこの問題が解消されています。 すべての参照が有効な項目を参照することが常に保証されます。 それはどのように行われるのでしょうか。
+
+この質問に対する Rust の答えは、有効期間です。 これにより、Rust はガベージ コレクションのパフォーマンス コストなしでメモリの安全性を確保できます。
+
+次のスニペットについて考えてみます。これは、値がスコープ外になった参照を使用しようとしています。
+
+
+\begin{lstlisting}[numbers=none]
+fn main() {
+    let x;
+    {
+        let y = 42;
+        x = &y; // `x` に `y` への参照を格納しているが、`y` はもうすぐ削除される。
+    }
+    println!("x: {}", x); // `x` は `y` を参照していますが、`y' は削除されました!
+}
+\end{lstlisting}
+
+上記のコードはコンパイルに失敗し、次のエラー メッセージが生成されます。
+
+\begin{lstlisting}[numbers=none]
+    error[E0597]: `y` does not live long enough
+     --> src/main.rs:6:17
+      |
+    6 |             x = &y;
+      |                 ^^ borrowed value does not live long enough
+    7 |         }
+      |         - `y` dropped here while still borrowed
+    8 |         println!("x: {}", x);
+      |                           - borrow later used here
+\end{lstlisting}
+
+このエラーは、値がまだ借用されている間にその値が削除されたことが原因で発生します。 この場合、\texttt{y} は内側のスコープの末尾で削除されますが、 \texttt{println} の呼び出しまでは \texttt{x} によって借用されています。 \texttt{x} は外側のスコープに対して有効なので "\texttt{x})"、"より長く存続する" と言えます。
+
+次に示すのは同じコード スニペットですが、各変数の有効期間を線で囲んでいます。 各有効期間に名前を付けます。
+
+\begin{itemize}
+\item \texttt{'a} は、値 \texttt{x} の有効期間の注釈です。
+\item \texttt{'b} は、値 \texttt{y} の有効期間の注釈です。
+\end{itemize}
+
+\begin{lstlisting}[numbers=none]
+fn main() {
+    let x;                // ---------+-- 'a
+    {                     //          |
+        let y = 42;       // -+-- 'b  |
+        x = &y;           //  |       |
+    }                     // -+       |
+    println!("x: {}", x); //          |
+}
+\end{lstlisting}
+
+ここでは、内側の \texttt{'b} 有効期間ブロックが外側の \texttt{'a} ブロックよりも短いことがわかります。
+
+Rust コンパイラでは、"借用チェッカー" を使用して借用が有効であるかどうかを検証できます。 借用チェッカーは、コンパイル時に 2 つの有効期間を比較します。 このシナリオでは、 \texttt{x} は、有効期間が \texttt{'a} ですが、有効期間が \texttt{'b} の値を参照しています。 参照対象 "(有効期間 \texttt{'b} の )" は、参照 "(有効期間 \texttt{'a} の \texttt{x})" よりも短いため、プログラムはコンパイルされません。\texttt{'b}
+
+\subsubsection{関数の有効期間に注釈を付ける}
+
+型と同様に、有効期間は Rust コンパイラによって推測されます。
+
+複数の有効期間がある場合があります。 その場合は、実行時に参照を確実に有効にするために使用される有効期間をコンパイラが理解できるように、有効期間に注釈を付けます。
+
+たとえば、2 つの文字列を入力パラメーターとして受け取り、その中で最も長いものを返す関数を考えてみます。
+
+\begin{lstlisting}[numbers=none]
+fn main() {
+    let magic1 = String::from("abracadabra!");
+    let magic2 = String::from("shazam!");
+
+    let result = longest_word(&magic1, &magic2);
+    println!("The longest magic word is {}", result);
+}
+
+fn longest_word(x: &String, y: &String) -> &String {
+    if x.len() > y.len() {
+        x
+    } else {
+        y
+    }
+}
+\end{lstlisting}
+
+上記のコードはコンパイルに失敗し、詳細なエラー メッセージが生成されます。
+
+\begin{lstlisting}[numbers=none]
+    error[E0106]: missing lifetime specifier
+     --> src/main.rs:9:38
+      |
+    9 | fn longest_word(x: &String, y: &String) -> &String {
+      |                    ----        ----        ^ expected named
+                                                      lifetime parameter
+      |
+      = help: this function's return type contains a borrowed value,
+        but the signature does not say whether it is borrowed from `x` or `y`
+    help: consider introducing a named lifetime parameter
+      |
+    9 | fn longest_word<'a>(x: &'a String, y: &'a String) -> &'a String {
+      |                ^^^^    ^^^^^^^        ^^^^^^^        ^^^
+\end{lstlisting}
+
+ヘルプ テキストは、返される参照が \texttt{x} と \texttt{y} のどちらを参照しているかを Rust が判断できないことを示しています。 私たちにもできません。 このため、参照を識別しやすくするために、有効期間を表すジェネリック パラメーターを使用して戻り値の型に注釈を付けます。
+
+有効期間は、関数が呼び出されるたびに異なる可能性があります。 \texttt{longest\_word} 関数に渡される参照の具体的な有効期間はわからず、返される参照が常に有効なものであるかどうかを判断することはできません。
+
+借用チェッカーは、参照が有効なものであるかどうかを判断できません。 これは、入力パラメーターの有効期間が戻り値の有効期間とどのように関連しているかも認識していません。 このため、有効期間に手動で注釈を付ける必要があります。
+
+さいわい、このエラーの修正方法に関するヒントがコンパイラによって示されています。 関数シグネチャにジェネリックの有効期間パラメーターを追加できます。 これらのパラメーターで参照間の関係を定義すると、借用チェッカーはその分析を実行できるようになります。
+
+\begin{lstlisting}[numbers=none]
+fn longest_word<'a>(x: &'a String, y: &'a String) -> &'a String {
+    if x.len() > y.len() {
+        x
+    } else {
+        y
+    }
+}
+\end{lstlisting}
+
+このコードを Rust Playground で試すことができます。
+
+必ず、ジェネリックの有効期間パラメーターを山かっこで囲んで宣言し、その宣言をパラメーター リストと関数名の間に追加します。
+
+\begin{itembox}[l]{注意}
+シグネチャでは、戻り値とすべてのパラメーター参照の有効期間が同じである必要があります。 そのため、同じ有効期間名 (例: \texttt{'a}) を使用します。 次に、その名前を、関数シグネチャ内の各参照に追加します。
+\end{itembox}
+
+この場合、名前 \texttt{'a} について特別なことは何もありません。 \texttt{'response} や \texttt{'program} など、他の任意の単語を使用することもできます。 注意すべき重要な点は、すべてのパラメーターと戻り値が、それぞれに関連付けられている有効期間の長さ以上存続することです。
+
+このサンプル コードで実験し、 \texttt{longest\_word} 関数に渡された参照の値と有効期間を変更して、その動作を確認しましょう。 コンパイラでは次のスニペットも拒否されますが、その理由を推測できますか。
+
+\begin{lstlisting}[numbers=none]
+fn main() {
+    let magic1 = String::from("abracadabra!");
+    let result;
+    {
+        let magic2 = String::from("shazam!");
+        result = longest_word(&magic1, &magic2);
+    }
+    println!("The longest magic word is {}", result);
+}
+
+fn longest_word<'a>(x: &'a String, y: &'a String) -> &'a String {
+    if x.len() > y.len() {
+        x
+    } else {
+        y
+    }
+}
+\end{lstlisting}
+
+このスニペットは Rust Playground にあります。
+
+このコードが壊れていると推測した場合は、正解です。 今回は、次のエラーが表示されます。
+
+\begin{lstlisting}[numbers=none]
+    error[E0597]: `magic2` does not live long enough
+     --> src/main.rs:6:40
+      |
+    6 |         result = longest_word(&magic1, &magic2);
+      |                                        ^^^^^^^ borrowed value
+                                            does not live long enough
+    7 |     }
+      |     - `magic2` dropped here while still borrowed
+    8 |     println!("The longest magic word is {}", result);
+      |                                              ------ borrow later
+                                                            used here
+\end{lstlisting}
+
+このエラーは、 \texttt{magic2} の有効期間が戻り値および \texttt{x} 入力引数の有効期間と同じであることがコンパイラによって予期されていたことを示しています。 関数のパラメーターと戻り値の有効期間に同じ有効期間名 (\texttt{'a}) を使用して注釈を付けたので、Rust はこのことを認識しています。
+
+人間には、コードを調べると、 \texttt{magic1} が \texttt{magic2} より長いことがわかります。 結果には \texttt{magic1} への参照が含まれていることがわかります。これは、有効になるのに十分な長さ存続します。 ただし、Rust では、コンパイル時にそのコードを実行できません。 \texttt{\&magic1} と \texttt{\&magic2} の両方の参照が戻り値となる可能性があることを考慮して、前に見たエラーが出力されます。
+
+\texttt{longest\_word} 関数から返される参照の有効期間は、渡される参照の有効期間の短い方と一致します。 したがって、コードには無効な参照が含まれている可能性があり、借用チェッカーでは許可されません。
+
+\subsubsection{型の有効期間に注釈を付ける}
+
+構造体または列挙型がそのフィールドの 1 つに参照を保持している場合は、その型定義に、それと共に搬送される各参照の有効期間を使用して注釈を付ける必要があります。
+
+たとえば、次のコード例を考えてみます。 \texttt{text} 文字列 "\texttt{text}" と \texttt{Highlight} タプル構造体があります。 構造体には、文字列スライスを保持するフィールドが 1 つあります。 スライスは、プログラムの別の部分から借用された値です。
+
+\begin{lstlisting}[numbers=none]
+#[derive(Debug)]
+struct Highlight<'document>(&'document str);
+
+fn main() {
+    let text = String::from("The quick brown fox jumps over the lazy dog.");
+    let fox = Highlight(&text[4..19]);
+    let dog = Highlight(&text[35..43]);
+    println!("{:?}", fox);
+    println!("{:?}", dog);
+}
+\end{lstlisting}
+
+上記のコードは、Rust Playground で入手できます。
+
+構造体の名前の後に、山かっこで囲まれたジェネリックの有効期間パラメーターの名前を配置します。 この配置によって、構造体定義の本体で有効期間パラメーターを使用できるようになります。 \texttt{Highlight} のインスタンスは、宣言により、そのフィールド内の参照より長くは存続できません。
+
+前のコードでは、 \texttt{'document} という有効期間を使用して構造体に注釈を付けました。 この注釈は、 \texttt{Highlight} 構造体が、借用する \texttt{\&str} のソース (想定されるドキュメント) より長く存続できないことを示します。
+
+ここで、 \texttt{main} 関数によって \texttt{Highlight} 構造体のインスタンスが 2 つ作成されます。 各インスタンスには、変数 \texttt{text} によって所有されている \texttt{String} 値のセグメントへの参照が保持されます。
+
+\begin{itemize}
+\item \texttt{fox} では、 \texttt{text} 文字列の 4 文字目から 19 文字目までのセグメントが参照されます。
+\item \texttt{dog} では、 \texttt{text} 文字列の 35 文字目から 43 文字目までのセグメントが参照されます。
+\end{itemize}
+
+また、 \texttt{Highlight} は、 \texttt{text} がスコープ外になる前にスコープ外になります。 つまり、 \texttt{Highlight} インスタンスは有効です。
+
+このメッセージはコードによってコンソールに出力されます。
+
+
+\begin{lstlisting}[numbers=none]
+Highlight("quick brown fox")
+Highlight("lazy dog")
+\end{lstlisting}
+
+実験として、 \texttt{text} によって保持されている値をスコープ外に移動してみて、どのような種類のエラーが借用チェッカーで発生するかを確認します。
+
+\begin{lstlisting}[numbers=none]
+#[derive(Debug)]
+struct Highlight<'document>(&'document str);
+
+fn erase(_: String) { }
+
+fn main() {
+    let text = String::from("The quick brown fox jumps over the lazy dog.");
+    let fox = Highlight(&text[4..19]);
+    let dog = Highlight(&text[35..43]);
+
+    erase(text);
+
+    println!("{:?}", fox);
+    println!("{:?}", dog);
+}
+\end{lstlisting}
+
+この失敗するコード スニペットは、Rust Playground にあります。
+
