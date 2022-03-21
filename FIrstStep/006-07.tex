@@ -1,0 +1,35 @@
+\subsection{知識チェック}
+
+次の質問に答えて、学習した内容を確認してください。
+
+\begin{enumerate}
+
+\item 次のうち、試しても Rust プログラムがパニックに "ならない" ものはどれですか?
+
+\begin{itemize}
+\item \texttt{vector[index]} という表記を使用して、ベクターの範囲外のインデックスにアクセスする。
+\item \texttt{vector.get(index)} という表記を使用して、ベクターの範囲外のインデックスにアクセスする。
+\item \texttt{array[index]} という表記を使用して、配列の範囲外のインデックスにアクセスする。
+\item \texttt{HashMap[key]} という表記を使用して、ハッシュ マップの存在しないキーにアクセスする。
+\end{itemize}
+
+\item Rust で、特定の型 \texttt{T} に値が存在しない可能性があることは、どのようにして表すことができますか?
+
+\begin{itemize}
+\item \texttt{Option<T>} 型です。
+\item \texttt{Result<T, bool>} 型です。
+\item \texttt{bool} 型の \texttt{false} 値。
+\item 空のタプル: \texttt{()}。
+\end{itemize}
+
+\item 特定の型 \texttt{T} の値を取得しているときの、入出力 (I/O) エラーの可能性は、どのようにして表すことができますか?
+
+\begin{itemize}
+\item \texttt{Option<T>} 型です。
+\item \texttt{Result<T, io::Error>} 型です。
+\item 空の \texttt{Vec<T>}。
+\item 空のタプル: \texttt{()}。
+\end{itemize}
+
+\end{enumerate}
+
