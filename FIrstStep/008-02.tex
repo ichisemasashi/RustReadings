@@ -1,0 +1,86 @@
+\subsection{ジェネリック データ型とは}
+
+ジェネリック データ型とは、その他の部分的に不明な型について定義される型です。 このコースでは最初から、多くのジェネリック データ型を使用してきました。次に例を示します。
+
+\begin{itemize}
+\item \texttt{Option<T>} 列挙型は、そのバリアント \texttt{Some} に含まれる値である型 \texttt{T} についてジェネリックです。
+\item \texttt{Result<T, E>} は、その \texttt{Ok} と \texttt{Err} のバリアントにそれぞれ含まれる成功と失敗の両方の種類についてジェネリックです。
+\item ベクター型 \texttt{Vec<T>}、配列型 \texttt{\[T; n\]}、ハッシュ マップ \texttt{HashMap<K, V>} は、それぞれに格納される型についてジェネリックです。
+\end{itemize}
+
+ジェネリック型を使用すると、定義された型によって保持される内部型に関して多くの懸念を抱えることなく必要な操作を指定できます。
+
+新しいジェネリック型を実装するには、構造体の名前の直後に、型パラメーターの名前を山かっこで囲んで宣言する必要があります。 これで、構造体の定義内でジェネリック型を使用することができます。それ以外の場合は、具象データ型を指定します。
+
+
+\begin{lstlisting}[numbers=none]
+struct Point<T> {
+    x: T,
+    y: T,
+}
+
+fn main() {
+    let boolean = Point { x: true, y: false };
+    let integer = Point { x: 1, y: 9 };
+    let float = Point { x: 1.7, y: 4.3 };
+    let string_slice = Point { x: "high", y: "low" };
+}
+\end{lstlisting}
+
+上記のコードでは、 \texttt{Point<T>} 構造体が定義されます。 この構造体は \texttt{x} 値と \texttt{y} 値のあらゆる型 (\texttt{T}) を保持します。
+
+\texttt{T} により任意の具象型が想定されるものの、 \texttt{x} と \texttt{y} は同じ型であると定義されているため、同じ型とする必要があります。 次のスニペットのように、含まれている値の型がそれぞれ異なる \texttt{Point<T>} のインスタンスを作成しようとすると、コードはコンパイルされません。
+
+\begin{lstlisting}[numbers=none]
+struct Point<T> {
+    x: T,
+    y: T,
+}
+
+fn main() {
+    let wont_work = Point { x: 25, y: true };
+}
+\end{lstlisting}
+
+
+\begin{lstlisting}[numbers=none]
+    error[E0308]: mismatched types
+     --> src/main.rs:7:39
+      |
+    7 |     let wont_work = Point { x: 25, y: true };
+      |                                       ^^^^ expected integer, found `bool`
+\end{lstlisting}
+
+エラー メッセージが表示され、 \texttt{y} フィールドに期待される型は整数であったことが示されます。 しかし、 \texttt{x} と同じ型になるように \texttt{y} を定義してあるので、コンパイラからは型の不一致エラーが報告されました。
+
+次の例のように、複数のジェネリック型パラメーターを使用できます。 今回、 \texttt{x} と \texttt{y} が異なる型の値になれるよう、2 つの型で \texttt{Point<T, U>} ジェネリックを示します。
+
+\begin{lstlisting}[numbers=none]
+struct Point<T, U> {
+    x: T,
+    y: U,
+}
+
+fn main() {
+    let integer_and_boolean = Point { x: 5, y: false };
+    let float_and_string = Point { x: 1.0, y: "hey" };
+    let integer_and_float = Point { x: 5, y: 4.0 };
+    let both_integer = Point { x: 10, y: 30 };
+    let both_boolean = Point { x: true, y: true };
+}
+\end{lstlisting}
+
+上記のすべての \texttt{Point} 型には、それぞれ "\texttt{Point}" が使用されています。 順序は次のとおりです。
+
+\begin{itemize}
+\item \texttt{Point<integer, bool>}
+\item \texttt{Point<f64, \&'static str>}
+\item \texttt{Point<integer, f64>}
+\item \texttt{Point<integer, integer>}
+\item \texttt{Point<bool, bool>}
+\end{itemize}
+
+そのため、これらの値を互いに直接組み合わせることは、そのような対話式操作をコードに実装するまで、実際には行うことができません。
+
+次のユニットでは、特性について学習し、コード内でジェネリック型を使用するとどのように役立つのかを明らかにします。 それらを使用すると、互いに異なるが関連している型のオブジェクトを操作するジェネリック関数を記述することができます。
+
