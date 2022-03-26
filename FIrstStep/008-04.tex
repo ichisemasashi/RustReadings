@@ -86,7 +86,7 @@ fn main() {
 
 \subsubsection{derive を使用する}
 
-幸いなことに、 \texttt{#[derive(Trait)]} 属性を使用すると、その各フィールドで特性が実装される場合に、 \texttt{Debug} および \texttt{PartialEq} 特性が Rust コンパイラによって自動的に実装されるようにすることができます。
+幸いなことに、 \texttt{\#[derive(Trait)]} 属性を使用すると、その各フィールドで特性が実装される場合に、 \texttt{Debug} および \texttt{PartialEq} 特性が Rust コンパイラによって自動的に実装されるようにすることができます。
 
 \begin{lstlisting}[numbers=none]
 #[derive(Debug, PartialEq)]
