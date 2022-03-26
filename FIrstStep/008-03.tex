@@ -1,0 +1,75 @@
+\subsection{特性を使用して共有動作を定義する}
+
+特性とは、型のグループで実装することができる共通のインターフェイスです。 Rust の標準ライブラリには、次のような便利な特性が多数用意されています。
+
+\begin{itemize}
+\item ソースからバイトを読み取ることができる値に対する \texttt{io::Read}。
+\item バイトを書き込むことができる値に対する \texttt{io::Write}。
+\item 書式指定子 "{:?}" を使用してコンソールに出力できる値に対する \texttt{Debug}。
+\item メモリ内に明示的に複製できる値に対する \texttt{Clone}。
+\item \texttt{String} に変換できる値に対する \texttt{ToString}。
+\item 数値におけるゼロ、ベクターにおける空、 \texttt{String} における “” など、適切な既定値を持つ型に対する \texttt{Default} 。
+\item 値のシーケンスを生成できる型に対する \texttt{Iterator} 。
+\end{itemize}
+
+各特性定義は、不明な型について定義されたメソッドのコレクションであり、通常は、その実装元が実行できる機能または動作を表します。
+
+"2 次元領域がある" という概念を表すために、次の特性を定義できます。
+
+
+\begin{lstlisting}[numbers=none]
+trait Area {
+    fn area(&self) -> f64;
+}
+\end{lstlisting}
+
+ここでは、 \texttt{trait} キーワードと、その後に特性の名前 (この場合は \texttt{Area}) を使用して特性を宣言します。
+
+中かっこ内で、この特性を実装する型の動作を記述するメソッド シグネチャを宣言します。この例では、関数シグネチャ \texttt{fn area(\&self) -> f64} です。 次に、この特性を実装する各型ではその独自のカスタム動作をメソッドの本体に指定する必要があることがコンパイラによって確認されます。
+
+ここで、特性 \texttt{Area} を実装する新しい型をいくつか作成してみましょう。
+
+
+\begin{lstlisting}[numbers=none]
+struct Circle {
+    radius: f64,
+}
+
+struct Rectangle {
+    width: f64,
+    height: f64,
+}
+
+impl Area for Circle {
+    fn area(&self) -> f64 {
+        use std::f64::consts::PI;
+        PI * self.radius.powf(2.0)
+    }
+}
+
+impl Area for Rectangle {
+    fn area(&self) -> f64 {
+        self.width * self.height
+    }
+}
+\end{lstlisting}
+
+型の特性を実装するには、キーワード \texttt{impl Trait for Type} を使用します。ここで、 \texttt{Trait} は実装される特性の名前であり、 \texttt{Type} は実装元の構造体または列挙型の名前です。
+
+\texttt{impl} ブロック内には、特性の定義で必要とされたメソッド シグネチャを配置し、特性のメソッドで実行する特定の型を対象にした特定の動作を含むメソッド本体を入力します。
+
+指定された特性が型によって実装されると、そのコントラクトは確実に維持されます。 特性を実装したら、通常のメソッドを呼び出すのと同じ方法で、 \texttt{Circle} と \texttt{Rectangle} のインスタンス上でメソッドを呼び出すことができます。次のようになります。
+
+\begin{lstlisting}[numbers=none]
+let circle = Circle { radius: 5.0 };
+let rectangle = Rectangle {
+    width: 10.0,
+    height: 20.0,
+};
+
+println!("Circle area: {}", circle.area());
+println!("Rectangle area: {}", rectangle.area());
+\end{lstlisting}
+
+このコードは、こちらの Rust Playground のリンクで操作できます。
+
