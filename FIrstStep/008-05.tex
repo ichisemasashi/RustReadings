@@ -1,0 +1,129 @@
+\subsection{特性境界とジェネリック関数を使用する}
+
+特性を使用すると、関数の定義方法次第でさまざまな型を受け取ることができます。これは、型によって特性が実装されると、その特性に従って抽象的に扱うことができるためです。
+
+関数の引数は匿名型パラメーターとして宣言できます。この場合、呼び出し先は、匿名型パラメーターによって宣言された境界を持つ型を備えている必要があります。
+
+Web アプリケーションを記述していて、値を JSON 形式にシリアル化するためのインターフェイスを用意する必要があるとします。 次のような特性を記述することが可能です。
+
+
+\begin{lstlisting}[numbers=none]
+trait AsJson {
+    fn as_json(&self) -> String;
+}
+\end{lstlisting}
+
+さらに、 \texttt{AsJson} 特性を実装する任意の型を受け入れる関数を記述することが可能です。 これらは、 \texttt{impl} の後に一連の特性境界を続けるようにして記述します。
+
+\begin{lstlisting}[numbers=none]
+fn send_data_as_json(value: &impl AsJson) {
+    println!("Sending JSON data to server...");
+    println!("-> {}", value.as_json());
+    println!("Done!\n");
+}
+\end{lstlisting}
+
+ここで、特性名と \texttt{impl} キーワードを指定します。 \texttt{value} パラメーターに具体的な型を使用する代わりにこれらの値で指定します。 \texttt{value} パラメーターでは、定義された特性を使用するあらゆる型が受け取られます。 関数は具象型を受け取ってもそれについて何も認識できません。そのため、使用できるメソッドは、匿名型パラメーターの特性境界で提供されるものみとなります。
+
+使用する構文は少し異なりますが、同じ関数を記述する方法が別にもあります。T は \texttt{AsJson} 特性を実装する必要があるジェネリック型であるということを明示的に指定します。
+
+
+\begin{lstlisting}[numbers=none]
+fn send_data_as_json<T: AsJson>(value: &T) { ... }
+\end{lstlisting}
+
+次に、使用する型を宣言し、それらの \texttt{AsJson} 特性を実装します。
+
+\begin{lstlisting}[numbers=none]
+struct Person {
+    name: String,
+    age: u8,
+    favorite_fruit: String,
+}
+
+struct Dog {
+    name: String,
+    color: String,
+    likes_petting: bool,
+}
+
+impl AsJson for Person {
+    fn as_json(&self) -> String {
+	    format!(
+	        r#"{{ "type": "person", "name": "{}",
+                  "age": {}, "favoriteFruit": "{}" }}"#,
+	        self.name, self.age, self.favorite_fruit
+	    )
+    }
+}
+
+impl AsJson for Dog {
+    fn as_json(&self) -> String {
+	    format!(
+	        r#"{{ "type": "dog", "name": "{}",
+                  "color": "{}", "likesPetting": {} }}"#,
+	        self.name, self.color, self.likes_petting
+	    )
+    }
+}
+\end{lstlisting}
+
+これで \texttt{Person} と \texttt{Dog} の両方で \texttt{AsJson} 特性が実装されたので、それらを \texttt{send\_data\_as\_json} 関数の入力パラメーターとして使用することができます。
+
+\begin{lstlisting}[numbers=none]
+fn main() {
+    let laura = Person {
+    	name: String::from("Laura"),
+	    age: 31,
+	    favorite_fruit: String::from("apples"),
+    };
+
+    let fido = Dog {
+	    name: String::from("Fido"),
+	    color: String::from("Black"),
+	    likes_petting: true,
+    };
+
+    send_data_as_json(&laura);
+    send_data_as_json(&fido);
+}
+\end{lstlisting}
+
+しかし、期待される特性を実装しない型を関数に渡すと、どうなるでしょうか? 新しい構造体を作成し、何が起こるかを見てみましょう。
+
+\begin{lstlisting}[numbers=none]
+struct Cat {
+    name: String,
+    sharp_claws: bool,
+}
+
+let kitty = Cat {
+    name: String::from("Kitty"),
+    sharp_claws: false,
+};
+
+send_data_as_json(&kitty);
+\end{lstlisting}
+
+コンパイラで次のエラーが発生します。
+
+
+\begin{lstlisting}[numbers=none]
+    error[E0277]: the trait bound `Cat: AsJson` is not satisfied
+      --> src/main.rs:70:23
+       |
+    5  | fn send_data_as_json(value: &impl AsJson) {
+       |                                   ------ required by this\\
+                                        bound in `send_data_as_json`
+    ...
+    70 |     send_data_as_json(&kitty);
+       |                       ^^^^^^ the trait `AsJson` is not\\
+                                      implemented for `Cat`
+\end{lstlisting}
+
+このエラーが発生する原因は、 \texttt{send\_data\_as\_json} 関数において、 \texttt{AsJson} 特性を実装しない型を、その特性が期待されている場所で使おうとしたことにあります。
+
+このユニットで使用したコードを確認するには、こちらの Rust Playground のリンクをご覧ください。
+
+オプションの課題として、 \texttt{Cat} 型の \texttt{AsJson} 特性の実装を試みることができます。
+
