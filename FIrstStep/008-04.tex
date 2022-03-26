@@ -1,0 +1,127 @@
+\subsection{derive 特性を使用する}
+
+カスタム型は、実際には少々使いにくいことにお気づきかもしれません。 このシンプルな \texttt{Point} 構造体を他の \texttt{Point} インスタンスと比較したり、ターミナルに表示したりすることはできません。 このような問題があるため、derive 属性を使用して、構造体に対して新しい項目が自動的に生成されるようにすることをお勧めします。
+
+\subsubsection{ジェネリック型の短所}
+
+次のコード例を見てみましょう。
+
+
+\begin{lstlisting}[numbers=none]
+struct Point {
+    x: i32,
+    y: i32,
+}
+
+fn main() {
+    let p1 = Point { x: 1, y: 2 };
+    let p2 = Point { x: 4, y: -3 };
+
+    if p1 == p2 { // can't compare two Point values!
+        println!("equal!");
+    } else {
+        println!("not equal!");
+    }
+
+    println!("{}", p1); // can't print using the
+                        // '{}' format specifier!
+    println!("{:?}", p1); //  can't print using the
+                          // '{:?}' format specifier!
+
+}
+\end{lstlisting}
+
+上記のコードは、3 つの理由で失敗します。 出力を次に示します。
+
+\begin{lstlisting}[numbers=none]
+    error[E0277]: `Point` doesn't implement `std::fmt::Display`
+      --> src/main.rs:10:20
+       |
+    10 |     println!("{}", p1);
+       |                    ^^ `Point` cannot be formatted with\\
+                                the default formatter
+       |
+       = help: the trait `std::fmt::Display` is not implemented\\
+         for `Point`
+       = note: in format strings you may be able to use `{:?}`with\\
+         (or {:#?} for pretty-print) instead
+       = note: required by `std::fmt::Display::fmt`
+       = note: this error originates in a macro (in Nightly builds,\\
+         run with -Z macro-backtrace for more info)
+
+    error[E0277]: `Point` doesn't implement `Debug`
+      --> src/main.rs:11:22
+       |
+    11 |     println!("{:?}", p1);
+       |                      ^^ `Point` cannot be formatted\\
+                                 using `{:?}`
+       |
+       = help: the trait `Debug` is not implemented for `Point`
+       = note: add `#[derive(Debug)]` or manually implement `Debug`
+       = note: required by `std::fmt::Debug::fmt`
+       = note: this error originates in a macro (in Nightly builds,\\
+         run with -Z macro-backtrace for more info)
+
+    error[E0369]: binary operation `==` cannot be applied to\\
+                                        type `Point`
+      --> src/main.rs:13:11
+       |
+    13 |     if p1 == p2 {
+       |        -- ^^ -- Point
+       |        |
+       |        Point
+       |
+       = note: an implementation of `std::cmp::PartialEq` might\\
+         be missing for `Point`
+
+    error: aborting due to 3 previous errors#+end_example
+\end{lstlisting}
+
+\texttt{Point} 型によって次の特性が実装されないため、このコードはコンパイルに失敗します。
+\begin{itemize}
+\item \texttt{Debug} 特性。 \texttt{\{:?\}} 書式指定子を使用して型を書式設定できるようにするものであり、プログラマ向けのデバッグ コンテキストで使用されます。
+\item \texttt{Display} 特性。 \texttt{\{\}} 書式指定子を使用して型を書式設定できるようにするものであり、 \texttt{Debug} に似ています。 ただし、ユーザー向けの出力には \texttt{Display} が適しています。
+\item \texttt{PartialEq} 特性。実装元の同等性を比較できるようにするものです。
+\end{itemize}
+
+\subsubsection{derive を使用する}
+
+幸いなことに、 \texttt{#[derive(Trait)]} 属性を使用すると、その各フィールドで特性が実装される場合に、 \texttt{Debug} および \texttt{PartialEq} 特性が Rust コンパイラによって自動的に実装されるようにすることができます。
+
+\begin{lstlisting}[numbers=none]
+#[derive(Debug, PartialEq)]
+struct Point {
+    x: i32,
+    y: i32,
+}
+\end{lstlisting}
+
+コードはまだコンパイルに失敗します。エンド ユーザー向けであるという理由から \texttt{Display} 特性の自動実装が Rust の標準ライブラリに用意されていないことが原因です。 しかし、その行をコメントアウトすれば、コードによって次の出力が生成されるようになります。
+
+\begin{lstlisting}[numbers=none]
+    not equal!
+    Point { x: 1, y: 2 }
+\end{lstlisting}
+
+それでも、次のように、使用する型の \texttt{Display} 特性を自分で実装することができます。
+
+\begin{lstlisting}[numbers=none]
+use std::fmt;
+
+impl fmt::Display for Point {
+    fn fmt(&self, f: &mut fmt::Formatter<'_>) -> fmt::Result {
+        write!(f, "({}, {})", self.x, self.y)
+    }
+}
+\end{lstlisting}
+
+これで、コードは次のようにコンパイルされます。
+
+\begin{lstlisting}[numbers=none]
+    not equal!
+    (1, 2)
+    Point { x: 1, y: 2 }
+\end{lstlisting}
+
+この例のコードについては、こちらの Rust Playground のリンクをご覧ください。
+
