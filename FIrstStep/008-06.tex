@@ -1,0 +1,130 @@
+\subsection{反復子を使用する}
+
+ループを使用してコレクション型を反復処理する方法については既に学習しました。 今回は、Rust で反復自体の概念を処理する方法について、さらに掘り下げて確認します。
+
+Rust では、すべての反復子で \texttt{Iterator} という名前の特性が実装されます。これは、標準ライブラリに定義されていて、範囲、配列、ベクター、ハッシュ マップなどのコレクションに反復子を実装する場合に使用されます。
+
+この特性の核となる部分は次のようになります。
+
+\begin{lstlisting}[numbers=none]
+trait Iterator {
+    type Item;
+    fn next(&mut self) -> Option<Self::Item>;
+}
+\end{lstlisting}
+
+\texttt{Iterator} には \texttt{next} というメソッドがあります。これを呼び出すと、 \texttt{Option<Item>} が返されます。 \texttt{next} メソッドからは、要素がある限り、 \texttt{Some(Item)} が返されます。 すべての処理が完了すると、反復が終了したことを示す \texttt{None} が返されます。
+
+この定義には、この特性に関連付けられた型を定義する \texttt{type Item} および \texttt{Self::Item} という新しい構文が使用されていることに注目してください。 この定義は、 \texttt{Iterator} 特性のすべての実装には、関連付けられた \texttt{Item} 型の定義も必要であることを意味しています。これは \texttt{next} メソッドの戻り値の型として使用されます。 言い換えると、 \texttt{Item} 型は、 \texttt{for} ループ ブロック内の反復子から返される型になります。
+
+\subsubsection{独自の反復子を実装する}
+
+独自の反復子を作成するには、次の 2 つの手順が必要です。
+
+\begin{enumerate}
+\item 反復子の状態を保持する構造体を作成します。
+\item その構造体に対して反復子を実装します。
+\end{enumerate}
+
+1 から任意の数 (\texttt{Counter} 構造体を作成するときに定義) までをカウントする \texttt{Counter} という名前の反復子を作成してみましょう。
+
+最初に、反復子の状態を保持する構造体を作成します。 また、 \texttt{new} メソッドも実装して、開始する方法を制御します。
+
+
+\begin{lstlisting}[numbers=none]
+#[derive(Debug)]
+struct Counter {
+    length: usize,
+    count: usize,
+}
+
+impl Counter {
+    fn new(length: usize) -> Counter {
+	    Counter {
+	        count: 0,
+	        length,
+	    }
+    }
+}
+\end{lstlisting}
+
+次に、 \texttt{Counter} 構造体の \texttt{Iterator} 特性を実装します。 usize を使用してカウントすることになるので、関連付けられた \texttt{Item} 型をその型とすることを宣言します。
+
+\texttt{next()} メソッドは、定義する必要がある唯一の必須メソッドです。 その本体内では、呼び出しのたびにカウントが 1 つずつインクリメントされます "(これがゼロから始めた理由です)"。 次に、カウントが終了したかどうかを確認します。 反復によって引き続き結果が生成されることを表するには、 \texttt{Option} 型の \texttt{Some(value)} バリアントを使用し、反復が停止される必要があることを表すには \texttt{None} バリアントを使用します。
+
+
+\begin{lstlisting}[numbers=none]
+impl Iterator for Counter {
+    type Item = usize;
+
+    fn next(&mut self) -> Option<Self::Item> {
+    
+        self.count += 1;
+        if self.count <= self.length {
+            Some(self.count)
+        } else {
+            None
+        }
+    }
+}
+\end{lstlisting}
+
+\texttt{Counter} が機能することを確認するには、その \texttt{next} 関数を明示的に呼び出します。
+
+\begin{lstlisting}[numbers=none]
+fn main() {
+    let mut counter = Counter::new(6);
+    println!("Counter just created: {:#?}", counter);
+
+    assert_eq!(counter.next(), Some(1));
+    assert_eq!(counter.next(), Some(2));
+    assert_eq!(counter.next(), Some(3));
+    assert_eq!(counter.next(), Some(4));
+    assert_eq!(counter.next(), Some(5));
+    assert_eq!(counter.next(), Some(6));
+    assert_eq!(counter.next(), None);
+    assert_eq!(counter.next(), None);  // further calls to `next`
+                                       // will return `None`
+    assert_eq!(counter.next(), None);
+
+    println!("Counter exhausted: {:#?}", counter);
+}
+\end{lstlisting}
+
+しかし、この方法で \texttt{next} を呼び出すと、繰り返しになります。 Rust を使用すると、 \texttt{Iterator} 特性を実装する型に \texttt{for} ループを使用することができるので、次のようにしてみましょう。
+
+\begin{lstlisting}[numbers=none]
+fn main() {
+    for number in Counter::new(10) {
+        println!("{}", number);
+    }
+}
+\end{lstlisting}
+
+上記のスニペットを実行すると、コンソールに次の出力が出力されます。
+
+\begin{lstlisting}[numbers=none]
+    1
+    2
+    3
+    4
+    5
+    6
+    7
+    8
+    9
+    10
+\end{lstlisting}
+
+\texttt{Iterator} 特性の完全な定義には他のメソッドも含まれていますが、それらは既定のメソッドです。 \texttt{next} を基にして作成されているので、無料で入手できます。
+
+\begin{lstlisting}[numbers=none]
+let sum_until_10: usize = Counter::new(10).sum();
+assert_eq!(sum_until_10, 55);
+
+let powers_of_2: Vec<usize> = 
+     Counter::new(8).map(|n| 2usize.pow(n as u32)).collect();
+assert_eq!(powers_of_2, vec![2, 4, 8, 16, 32, 64, 128, 256]);
+\end{lstlisting}
+
+このユニットの完全なコード例については、こちらの Rust Playground のリンクをご覧ください。
