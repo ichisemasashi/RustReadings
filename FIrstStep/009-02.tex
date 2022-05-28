@@ -1,0 +1,134 @@
+\subsection{コード編成の背後にある概念を理解する}
+
+開始する前に、Rust プログラムでのコード編成の背後にある概念について説明することが重要です。
+
+\begin{itemize}
+\item パッケージ:
+\begin{itemize}
+\item 1 つ以上の "クレート" 内に機能が含まれています。
+\item これらの "クレート" をビルドする方法に関する情報が含まれています。 情報は \texttt{Cargo.toml} ファイル内にあります。
+\end{itemize}
+
+\item クレート:
+
+\begin{itemize}
+\item コンパイル単位です。これは、Rust コンパイラが動作できる最小のコード量です。
+\item コンパイルが完了すると、実行可能ファイルまたはライブラリが生成されます。
+\item 暗黙的な、名前のないトップレベル "モジュール" が含まれています。
+\end{itemize}
+
+\item モジュール:
+
+\begin{itemize}
+\item "クレート" 内の "(入れ子になっている可能性がある)" コード編成の単位です。
+\item 追加のモジュールにまたがる再帰的な定義が含まれる場合があります。
+\end{itemize}
+
+\end{itemize}
+
+
+\subsubsection{パッケージ}
+
+コマンド \texttt{\$ cargo new <project-name>} を実行するたびに、Cargo によってパッケージが作成されます。
+
+\begin{lstlisting}[numbers=none]
+$ cargo new my-project
+     Created binary (application) `my-project` package
+\end{lstlisting}
+
+ここでは、\texttt{src/main.rs} のみが含まれているパッケージを使用しています。つまり、\texttt{my-project} という名前のバイナリ クレートだけが含まれています。
+
+\begin{lstlisting}[numbers=none]
+my-project
+├── src
+│  └── main.rs
+└── Cargo.toml
+\end{lstlisting}
+
+
+
+パッケージは、\texttt{src/bin} ディレクトリにファイルを配置することで、複数のバイナリ クレートを持つことができます。 各ファイルが個別のバイナリ クレートになります。
+
+パッケージ内に \texttt{src/main.rs} と \texttt{src/lib.rs} がある場合は、ライブラリとバイナリという 2 つのクレートが含まれています。 これらの両方にパッケージと同じ名前が付けられています。
+
+\subsubsection{クレート}
+
+Rust のコンパイル モデルは、バイナリまたはライブラリにコンパイルできる、"クレート" と呼ばれる成果物を中心にしています。
+
+\texttt{cargo new} コマンドを使用して作成したすべてのプロジェクトが、クレートそのものです。 プロジェクト内で依存関係として使用できるサードパーティーのすべての Rust コードも、それぞれが 1 つのクレートです。
+
+\subsubsection{ライブラリ クレート}
+
+バイナリ プログラムを作成する方法については既に説明しましたが、ライブラリの作成も簡単です。 ライブラリを作成するには、\texttt{--lib} コマンドライン パラメーターを \texttt{cargo new} コマンドに渡します。
+
+\begin{lstlisting}[numbers=none]
+$ cargo new --lib my-library
+     Created library `my-library` package
+\end{lstlisting}
+
+\texttt{src/main.rs} ファイルの代わりに、=src/lib.rs' ファイルが取得されていることを確認できます。
+
+\begin{lstlisting}[numbers=none]
+my-library
+├── src
+│  └── lib.rs
+└── Cargo.toml
+\end{lstlisting}
+
+このクレートをコンパイルするように Cargo に指示すると、\texttt{libmy\_library.rlib} という名前のライブラリ ファイルが作成され、他のプロジェクトにパブリッシュしてリンクすることができます。
+
+\subsubsection{モジュール}
+
+Rust は、階層的に論理的なユニットに分割し、読みやすく再利用しやすい、強力なモジュール システムを提供します。
+
+モジュールは、以下の項目のコレクションです。
+
+\begin{itemize}
+\item 定数
+\item 型の別名
+\item 関数
+\item 構造体
+\item 列挙型
+\item Traits
+\item \texttt{impl} のブロック
+\item その他のモジュール
+\end{itemize}
+
+モジュールは、項目の "プライバシー" も制御します。 項目のプライバシーにより、項目が "公開" または "非公開" のいずれかとして識別されます。 公開は、項目が外部コードで使用できることを意味します。 非公開は、項目が内部実装の詳細であり、外部で使用できないことを意味します。
+
+モジュールの例を示します。
+
+\begin{lstlisting}[numbers=none]
+mod math {
+    type Complex = (f64, f64);
+    pub fn sin(f: f64) -> f64 { /* ... */ }
+    pub fn cos(f: f64) -> f64 { /* ... */ }
+    pub fn tan(f: f64) -> f64 { /* ... */ }
+}
+
+println!("{}", math::cos(45.0));
+\end{lstlisting}
+
+ソース ファイルに \texttt{mod} 宣言が含まれている場合は、これにコンパイラを実行する前に、ソース ファイル内の \texttt{mod} 宣言がある場所にモジュール ファイルの内容が挿入されます。 つまり、モジュールは個別にはコンパイルされず、クレートのみがコンパイルされます。
+
+\texttt{math} モジュールの関数定義の先頭に、 \texttt{pub} キーワードがあることにお気づきかもしれません。
+
+Rust コンパイラによって、項目がモジュール間で使用できるかどうかが確認されます。 既定では、Rust 内のすべてのものがプライベートであり、現在のモジュールとその子孫のみがアクセスできます。 これに対して、項目が \texttt{pub} として宣言されている場合は、外部からアクセスできると考えることができます。 次に例を示します。
+
+\begin{lstlisting}[numbers=none]
+// Declare a private struct
+struct Foo;
+
+// Declare a public struct with a private field
+pub struct Bar {
+    field: i32,
+}
+
+// Declare a public enum with two public variants
+pub enum State {
+    PubliclyAccessibleVariant,
+    PubliclyAccessibleVariant2,
+}
+\end{lstlisting}
+
+Rust のプライバシー規則は、内部実装の詳細を非表示にしながら、パブリック API を公開するモジュール階層を作成する場合に、驚くような力を発揮します。
