@@ -5,7 +5,7 @@
 \begin{itemize}
 \item \texttt{Option<T>} 列挙型は、そのバリアント \texttt{Some} に含まれる値である型 \texttt{T} についてジェネリックです。
 \item \texttt{Result<T, E>} は、その \texttt{Ok} と \texttt{Err} のバリアントにそれぞれ含まれる成功と失敗の両方の種類についてジェネリックです。
-\item ベクター型 \texttt{Vec<T>}、配列型 \texttt{\[T; n\]}、ハッシュ マップ \texttt{HashMap<K, V>} は、それぞれに格納される型についてジェネリックです。
+\item ベクター型 \texttt{Vec<T>}、配列型 \texttt{[T; n]}、ハッシュ マップ \texttt{HashMap<K, V>} は、それぞれに格納される型についてジェネリックです。
 \end{itemize}
 
 ジェネリック型を使用すると、定義された型によって保持される内部型に関して多くの懸念を抱えることなく必要な操作を指定できます。

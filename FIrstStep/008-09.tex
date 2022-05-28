@@ -1,0 +1,29 @@
+\subsection{知識チェック}
+
+次の質問に答えて、学習した内容を確認してください。
+
+\begin{enumerate}
+\item Rust の特性が役に立つのはどのような場合ですか?
+\begin{itemize}
+\item 省略可能なパラメーターを関数または構造体で受け取る必要がある場合。
+\item 具体的な値ではなく、動作の観点から関数または構造体のパラメーターを指定する必要がある場合。
+\item 借用チェッカーのコンパイル時間保証を避ける必要がある場合。
+\item 値がその有効期間を過ぎても、引き続き有効にしておく必要がある場合。
+\end{itemize}
+\item 次の関数シグネチャはどういう意味ですか? \texttt{fn show\_on\_screen<T: Display>(data: T)}
+\begin{itemize}
+\item \texttt{data} パラメーターは任意の型にすることができます。
+\item \texttt{data} パラメーターは、必要に応じて \texttt{Display} 特性を実装する任意の型とすることができます。
+\item \texttt{data} パラメーターは、 \texttt{Display} 特性を実装する型のみに制限されています。
+\item \texttt{data} パラメーターは省略可能です。
+\end{itemize}
+\end{enumerate}
+
+
+
+
+
+
+
+
+
