@@ -1,0 +1,54 @@
+\subsection{モジュールを別のファイルに分割する}
+
+モジュールの内容が大きくなりすぎると、コード ナビゲーションがより困難になります。 モジュールの内容を別のファイルに移動することを検討してください。
+
+前の例のコードを \texttt{src/authentication.rs} という名前の独自のファイルに移動して、クレートのルート ファイルを変更しましょう。
+
+\begin{lstlisting}[numbers=none, caption=src/main.rs]
+mod authentication;
+
+fn main() {
+    let mut user = authentication::User::new("jeremy", "super-secret");
+
+    println!("The username is: {}", user.get_username());
+    user.set_password("even-more-secret");
+}
+\end{lstlisting}
+
+\begin{lstlisting}[numbers=none, caption=src/authentication.rs]
+pub struct User {
+    username: String,
+    password_hash: u64,
+}
+
+impl User {
+    pub fn new(username: &str, password: &str) -> User {
+        User {
+            username: username.to_string(),
+            password_hash: hash_password(&password.to_owned()),
+        }
+    }
+
+    pub fn get_username(&self) -> &String {
+        &self.username
+    }
+
+    pub fn set_password(&mut self, new_password: &str) {
+        self.password_hash = hash_password(&new_password.to_owned())
+    }
+}
+
+fn hash_password<T: Hash>(t: &T) -> u64 {/* ... */}
+\end{lstlisting}
+
+\texttt{mod authentication} の後には、コード ブロックの代わりにセミコロンを配置します。 ファイルのサイズが大きくなると、この手法を使用することで、モジュールを新しいファイルに自動的に移動できます。 コンパイラによって、モジュールと同じ名前の別のファイルからモジュールの内容が読み込まれます。
+
+コンテンツが読み込まれても、モジュール ツリーは同じままです。 コードは、定義が異なるファイルに存在する場合でも動作し、変更する必要はありません。
+
+
+
+
+
+
+
+
