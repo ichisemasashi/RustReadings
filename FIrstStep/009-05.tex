@@ -1,0 +1,69 @@
+\subsection{サードパーティーのクレートをプロジェクトに追加する}
+
+このモジュールでは、サードパーティーのクレートをプロジェクトに追加する方法について学習します。 Rust の標準ライブラリには "正規表現" のモジュールがないため、Crates.io で利用できる \texttt{regex} のクレートを追加してみましょう。 この Web サイトは、パッケージを検出してダウンロードするための場所として機能する、Rust コミュニティの中央パッケージ レジストリです。
+
+プロジェクトに依存するクレートを追加するときは常に、最も手間のかかる部分に Cargo を活用することができます。 crates.io でホストされているライブラリに依存させるには、 \texttt{Cargo.toml} ファイルに追加します。
+
+\begin{lstlisting}[numbers=none]
+[dependencies]
+regex = "1.4.2"
+\end{lstlisting}
+
+Cargo.toml に \texttt{[dependencies]} セクションがまだない場合は、そのセクションを追加します。 次に、使用するクレートの名前とバージョンを一覧表示します。
+
+次のステップは、コマンド \texttt{cargo build} を実行することです。 Cargo は、新しい依存関係とそのすべての依存関係を取得し、それらすべてをコンパイルします。
+
+\begin{lstlisting}[numbers=none]
+    $ cargo build
+        Updating crates.io index
+      Downloaded regex v1.4.2
+      Downloaded thread_local v1.0.1
+      Downloaded regex-syntax v0.6.21
+      Downloaded lazy_static v1.4.0
+      Downloaded aho-corasick v0.7.15
+      Downloaded memchr v2.3.4
+      Downloaded 6 crates (689.7 KB) in 4.58s
+       Compiling memchr v2.3.4
+       Compiling lazy_static v1.4.0
+       Compiling regex-syntax v0.6.21
+       Compiling thread_local v1.0.1
+       Compiling aho-corasick v0.7.15
+       Compiling regex v1.4.2
+       Compiling my-project v0.1.0 (/home/user/code/my-project)
+        Finished dev [unoptimized + debuginfo] target(s) in 35.13s
+\end{lstlisting}
+
+これで、\texttt{main.rs} で \texttt{regex} ライブラリを使用できるようになりました。
+
+\begin{lstlisting}[numbers=none]
+use regex::Regex;
+
+fn main() {
+    let re = Regex::new(r"^\d{4}-\d{2}-\d{2}$").unwrap();
+    println!("Did our date match? {}", re.is_match("2014-01-01"));
+}
+\end{lstlisting}
+
+実行すると、次のように表示されます。
+
+\begin{lstlisting}[numbers=none]
+    $ cargo run
+       Running `target/hello_world`
+    Did our date match? true
+\end{lstlisting}
+
+また、Rust Playground でサードパーティーのクレートを使用することもできます。
+
+
+
+
+
+
+
+
+
+
+
+
+
+
