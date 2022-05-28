@@ -1,0 +1,78 @@
+\subsection{コードをモジュールに分割する}
+
+モジュールは、コードを整理しやすくするだけでなく、値、型、メソッドに対してもプライバシーを保証します。
+
+次の例を見てみましょう。簡略化された認証 API がモデル化されています。
+
+\begin{lstlisting}[numbers=none]
+mod authentication {
+    pub struct User {
+        username: String,
+        password_hash: u64,
+    }
+
+    impl User {
+        pub fn new(username: &str, password: &str) -> User {
+            User {
+                username: username.to_string(),
+                password_hash: hash_password(password),
+            }
+        }    
+    }
+    fn hash_password(input: &str) -> u64 { /*...*/ }
+}
+
+fn main() {
+
+    let user = authentication::User::new("jeremy", "super-secret");
+
+    println!("The username is: {}", user.username);
+    println!("The password is: {}", user.password_hash);
+
+}
+\end{lstlisting}
+
+前のコードでは、 \texttt{authentication} モジュールは両方ともパブリックであるため、 \texttt{User::new} メソッドで \texttt{User} 構造体を提供していることがわかります。 "\texttt{pub} キーワードに注目してください。"
+
+このコードは、\texttt{User} 構造体から \texttt{username} と \texttt{password\_hash} のフィールドにアクセスしようとしても、プライベートであるため、コンパイルに失敗します。 コードを実行すると、次のエラーが発生します。
+
+\begin{lstlisting}[numbers=none]
+    error[E0616]: field `username` of struct `User` is private
+      --> src/main.rs:28:42
+       |
+    28 |     println!("The username is: {}", user.username);
+       |                                          ^^^^^^^^ private field
+
+    error[E0616]: field `password_hash` of struct `User` is private
+      --> src/main.rs:29:42
+       |
+    29 |     println!("The password is: {}", user.password_hash);
+       |                                          ^^^^^^^^^^^^^ private field
+
+    error: aborting due to 2 previous errors
+\end{lstlisting}
+
+このエラー情報は、特定のモジュールの各部分にアクセスできるのがプログラムのどの部分かを制御したい場合に役立ちます。 \texttt{username} フィールドへの読み取りアクセス権と、\texttt{password} フィールドへの書き込みアクセスの付与をプライベートに保ったまま行いたい場合は、getter と setter のメソッドを使用できます。
+
+\begin{lstlisting}[numbers=none]
+mod authentication {
+
+    // ...
+
+    impl User {
+
+    // ...
+
+        pub fn get_username(&self) -> &String {
+            &self.username
+        }
+    
+        pub fn set_password(&mut self, new_password: &str) {
+            self.password_hash = hash_password(new_password)
+        }
+    }
+}
+\end{lstlisting}
+
+これで、すべての読み取りと書き込みが、 \texttt{authentication} モジュールによって制御されるようになります。
+
