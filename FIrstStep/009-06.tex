@@ -1,0 +1,20 @@
+\subsubsection{演習 - 表示}
+
+明記されていない限り、モジュール内のすべての項目はプライベートになります。 モジュールのスコープの外部からアクセスできるのは、モジュールのパブリック項目だけです。
+
+次のコードにはコンパイラ エラーがあります。 この演習での課題は、\texttt{main} 関数を変更せずにコードを正常にコンパイルすることです。
+
+\begin{lstlisting}[numbers=none]
+mod car_factory {
+    fn build_car() {
+        println!("Honk honk!");
+    }
+}
+
+fn main() {
+    car_factory::build_car();
+}
+\end{lstlisting}
+
+ヒント: コンパイラ エラーは、パブリックである必要がある項目を指している必要があります。
+
