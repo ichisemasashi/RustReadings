@@ -1,0 +1,151 @@
+\subsection{単体テストを作成する}
+
+Rust の単体テストは、テスト以外のコードが期待どおりに機能していることを検証する \texttt{\#[test]} 属性でマークされた単純な関数です。 これらの関数は、コードをテストするときにのみコンパイルされます。
+
+テスト関数によって、テストするコードが実行されます。 次に、結果がチェックされます。これには多くの場合、\texttt{assert!} または \texttt{assert\_eq!} のいずれかのマクロが使用されます。
+
+次のコード例では、単純な \texttt{add} 関数と、\texttt{\#[test]} 属性でマークされた別の \texttt{add\_works} 関数を定義します。
+
+\begin{lstlisting}[numbers=none]
+fn add(a: i32, b: i32) -> i32 {
+    a + b
+}
+
+#[test]
+fn add_works() {
+    assert_eq!(add(1, 2), 3);
+    assert_eq!(add(10, 12), 22);
+    assert_eq!(add(5, -2), 3);
+}
+\end{lstlisting}
+
+コマンド \texttt{\$ cargo test} を実行すると、出力は次の例のようになります。
+
+\begin{lstlisting}[numbers=none]
+running 1 test
+test add_works ... ok
+
+test result: ok. 1 passed; 0 failed; 0 ignored; 0 measured; 0 filtered out
+\end{lstlisting}
+
+\subsubsection{テスト不合格}
+
+単に \texttt{cargo tests} の動作を確認するために、失敗するテストを含めてみましょう。
+
+\begin{lstlisting}[numbers=none]
+#[test]
+fn add_fails() {
+    assert_eq!(add(2, 2), 7);
+}
+\end{lstlisting}
+
+\texttt{\$ cargo test} コマンドを使用してテストを再度実行すると、出力に \texttt{add\_works} テストに合格したことが示されます。 また、\texttt{add\_fails} が失敗したことが示され、\texttt{assert\_eq} への呼び出しに失敗したことに関する情報が含まれます。
+
+\begin{lstlisting}[numbers=none]
+running 2 tests
+test add_works ... ok
+test add_fails ... FAILED
+
+failures:
+
+---- add_fails stdout ----
+thread 'add_fails' panicked at 'assertion failed: `(left == right)`
+  left: `4`,
+ right: `7`', src/main.rs:14:5
+note: run with `RUST_BACKTRACE=1` environment variable to display a backtrace
+
+
+failures:
+    add_fails
+
+test result: FAILED. 1 passed; 1 failed; 0 ignored; 0 measured; 0 filtered out
+\end{lstlisting}
+
+\subsubsection{予想される失敗}
+
+多くのシナリオでは、条件によって \texttt{panic!} が発生するかどうかをテストすることが重要です。
+
+属性 \texttt{should\_panic} を使用すると、\texttt{panic!} を確認できます。 この属性をテスト関数に追加すると、関数内のコードがパニックになったときにテストが成功します。 コードがパニックにならないと、テストは失敗します。
+
+ここで、\texttt{add\_fails} テスト関数により、予想されるパニックがキャプチャされ、それが成功テストとして扱われます。
+
+\begin{lstlisting}[numbers=none]
+#[test]
+#[should_panic]
+fn add_fails() {
+    assert_eq!(add(2, 2), 7);
+}
+\end{lstlisting}
+
+テスト結果は次のようになります。
+
+\begin{lstlisting}[numbers=none]
+running 2 tests
+test add_works ... ok
+test add_fails ... ok
+
+test result: ok. 2 passed; 0 failed; 0 ignored; 0 measured; 0 filtered out
+\end{lstlisting}
+
+\subsubsection{テストを無視する}
+
+\texttt{[test]} 属性の注釈が付けられた関数には、\texttt{[ignore]} 属性の注釈を付けることもできます。 この属性により、テスト中にテスト関数がスキップされます。
+
+\texttt{[ignore]} 属性は、必要に応じて、テストが無視される理由と共に書き込むことができます。
+
+\begin{lstlisting}[numbers=none]
+#[test]
+#[ignore = "not yet reviewed by the Q.A. team"]
+fn add_negatives() {
+    assert_eq!(add(-2, -2), -4)
+}
+\end{lstlisting}
+
+無視されたテスト関数は引き続き型チェックされ、コンパイルされますが、テストで実行されることはありません。
+
+\begin{lstlisting}[numbers=none]
+running 3 tests
+test add_negatives ... ignored
+test add_works ... ok
+test add_fails ... ok
+
+test result: ok. 2 passed; 0 failed; 1 ignored; 0 measured; 0 filtered out
+\end{lstlisting}
+
+\subsubsection{テスト モジュール}
+
+ほとんどの単体テストは、\texttt{\#[cfg(test)]} 属性によってサブモジュールに挿入されます。
+
+\begin{lstlisting}[numbers=none]
+fn add(a: i32, b: i32) -> i32 {
+    a + b
+}
+
+#[cfg(test)]
+mod add_function_tests {
+    use super::*;
+
+    #[test]
+    fn add_works() {
+        assert_eq!(add(1, 2), 3);
+        assert_eq!(add(10, 12), 22);
+        assert_eq!(add(5, -2), 3);
+    }
+
+    #[test]
+    #[should_panic]
+    fn add_fails() {
+        assert_eq!(add(2, 2), 7);
+    }
+
+    #[test]
+    #[ignore]
+    fn add_negatives() {
+        assert_eq!(add(-2, -2), -4)
+    }
+}
+\end{lstlisting}
+
+\texttt{cfg} 属性により、条件付きコンパイルが制御され、述語が \texttt{true} の場合にのみ、それがアタッチされている内容がコンパイルされます。 \texttt{test} コンパイル フラグは、コマンド \texttt{\$ cargo test} を実行するたびに Cargo によって自動的に発行されるため、テストの実行時に常に \texttt{true} になります。
+
+\texttt{add\_function\_tests} モジュール内のコードが外部モジュール内の \texttt{add} にアクセスするには、\texttt{use super::*;} 宣言が必要です。
