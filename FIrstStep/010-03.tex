@@ -1,0 +1,24 @@
+\subsection{演習 - 単体テストを記述する}
+
+この演習では、\texttt{is\_even} 関数用に 2 つのテスト関数を記述します。 コードがコンパイルされ、両方のテストが成功すると、演習が完了します。 2 つのテスト関数の本体のみを編集する必要があります。
+
+\begin{lstlisting}[numbers=none]
+pub fn is_even(num: i32) -> bool {
+    num % 2 == 0
+}
+
+#[cfg(test)]
+mod tests {
+    use super::*;
+
+    #[test]
+    fn is_true_when_even() {
+        assert!();
+    }
+
+    #[test]
+    fn is_false_when_odd() {
+        assert!();
+    }
+}
+\end{lstlisting}
