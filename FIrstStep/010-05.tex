@@ -1,0 +1,77 @@
+\subsection{演習 - ドキュメント テストを記述する}
+
+この演習では、関数 \texttt{div} と \texttt{sub} について、次のコード スニペットでドキュメント テストを作成します。
+
+\texttt{div} 関数について、次のドキュメント テストを記述します。
+
+\begin{enumerate}
+\item \texttt{10} を \texttt{2} で除算すると \texttt{5} になることをアサートします。
+\item \texttt{6} を \texttt{3} で除算すると \texttt{2} になることをアサートします。
+\item \texttt{10} を \texttt{0} で除算するとパニックになることをアサートします。
+\end{enumerate}
+
+\texttt{sub} 関数について、次のドキュメント テストを記述します。
+
+\begin{enumerate}
+\item \texttt{9} から \texttt{2} を減算すると \texttt{7} になることをアサートします。
+\item \texttt{6} から \texttt{9} を減算すると \texttt{-3} になることをアサートします。
+\end{enumerate}
+
+\begin{lstlisting}[numbers=none]
+/// This function divides two numbers.
+///
+/// # Example #1: 10 / 2 == 5
+///
+/// ```
+/// let result = doctests_exercise::div(...);  // TODO: finish this test!
+/// assert_eq!(result, 2);
+/// ```
+///
+/// # Example #2: 6 / 2 = 3
+///
+/// ```
+/// TODO: Write this doctest!
+/// ```
+///
+/// # Panics
+///
+/// The function panics if the second argument is zero.
+///
+/// ```rust,should_panic
+/// // panics on division by zero
+/// TODO: Write this doctest!
+/// ```
+pub fn div(a: i32, b: i32) -> i32 {
+    if b == 0 {
+        panic!("Divide-by-zero error");
+    }
+    a / b
+}
+
+/// This function subtracts two numbers.
+///
+/// # Example #1: 9 - 2 == 7
+///
+/// ```
+/// TODO: Write this doctest!
+/// ```
+///
+/// # Example #2: 6 - 9 == -3
+///
+/// ```
+/// TODO: Write this doctest!
+/// ```
+pub fn sub(a: i32, b: i32) -> i32 {
+    a - b
+}
+\end{lstlisting}
+
+ドキュメント テストはライブラリ クレートにのみ使用できるため、まず、コンピューターにプロジェクトを作成してください。 この目的を実現するには、ターミナルで次のコマンドを実行します。
+
+\begin{lstlisting}[numbers=none]
+$ cargo new --lib doctests_exercise
+$ cd doctests_exercise
+\end{lstlisting}
+
+クレートの名前は、この演習の最初の割り当てで既に入力しているため、関数の名前の前に付ける必要があります。
+
