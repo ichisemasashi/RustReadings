@@ -1,0 +1,51 @@
+\subsection{ドキュメント テストを記述する}
+
+Rust を使用すると、テストとしてドキュメントの例を実行できます。 Rust ライブラリをドキュメント化する主な方法は、"ドキュメントのコメント" と呼ばれる 3 つのスラッシュ (\/\/\/) でソース コードに注釈を付けることです。 ドキュメントのコメントは Markdown で記述され、コード ブロックがサポートされているので、これらのコード ブロックはコンパイルされ、テストとして使用されます。
+
+この機能を試すには、最初に新しいライブラリ プロジェクトを作成する必要があります。
+
+\begin{lstlisting}[numbers=none]
+$ cargo new --lib basic_math
+$ cd basic_math
+\end{lstlisting}
+
+
+Visual Studio Code で \texttt{src/lib.rs} ファイルを開き、既存の内容を次のコードに置き換えます。
+
+
+\begin{lstlisting}[numbers=none]
+/// Generally, the first line is a brief summary describing the function.
+///
+/// The next lines present detailed documentation. 
+/// Code blocks start with triple backticks. The code has an implicit `fn main()` inside and `extern crate <cratename>`,  
+/// which means you can just start writing code.
+///
+/// ```
+/// let result = basic_math::add(2, 3);
+/// assert_eq!(result, 5);
+/// ```
+pub fn add(a: i32, b: i32) -> i32 {
+    a + b
+}
+\end{lstlisting}
+
+単体テストと同様に、ドキュメント テストは、パニックなしで実行された場合に成功します。 特定の結果を確認するには、\texttt{assert!} マクロを使用して、実際の出力が想定どおりであることを確認します。 コマンド \texttt{\$ cargo test} を使用して、このコードのテスト スイートを呼び出すことができます。出力は次の例のようになります。
+
+\begin{lstlisting}[numbers=none]
+$ cargo test
+    Finished test [unoptimized + debuginfo] target(s) in 0.00s
+     Running target/debug/deps/basic_math-910b859a2a6f3c3f
+
+running 0 tests
+
+test result: ok. 0 passed; 0 failed; 0 ignored; 0 measured; 0 filtered out
+
+   Doc-tests basic_math
+
+running 1 test
+test src/lib.rs - add (line 6) ... ok
+
+test result: ok. 1 passed; 0 failed; 0 ignored; 0 measured; 0 filtered out
+\end{lstlisting}
+
+出力には、0 個の単体テストと 1 つのドキュメント テストがあることが示されています。
