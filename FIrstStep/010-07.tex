@@ -1,90 +1,26 @@
-\subsection{統合テストを記述する}
+\subsection{知識チェック}
 
-単体テストとドキュメント テストでは、簡潔で具体的なテストが提供されます。 しかし、クレート全体をテストするのも良い方法です。 その後、クレートのさまざまなコード パーツが期待したとおり一緒に機能するのを確認できます。
 
-クレート全体をテストするには、"統合テスト" を使用できます。 Rust テスト スイートでは、この種のテストがサポートされています。この種類のテストでは、ライブラリのパブリック API に含まれる関数だけが呼び出されます。 統合テストを使用して、他のユーザーが使用している場合のコードの動作を確認できます。
+次の質問に答えて、学習した内容を確認してください。
 
-これらのテストは、個別のディレクトリとファイルに存在するため、ライブラリ コードを外部でテストできます。 Cargo で統合テストを実行する場合は、それらを tests ディレクトリに配置します。 Cargo によってこのディレクトリ内の各ソース ファイルが実行されます。 src ディレクトリと同じレベルで、プロジェクト ディレクトリ内に tests を作成します。
-
-新しい小規模なプロジェクトを作成して、統合テストを作成してみましょう。 ターミナルで次のコマンドを実行します。
-
-\begin{lstlisting}[numbers=none]
-$ cargo new --lib rusty_pizza
-$ cd rusty_pizza
-\end{lstlisting}
-
-この例では、プライベート メソッドとパブリック メソッドを含む単純な \texttt{Pizza} 構造体を使用します。
-
-\begin{lstlisting}[numbers=none]
-pub struct Pizza {
-    pub topping: String,
-    pub inches: u8,
-}
-
-impl Pizza {
-    pub fn pepperoni(inches: u8) -> Self {
-        Pizza::bake("pepperoni", inches)
-    }
-
-    pub fn mozzarella(inches: u8) -> Self {
-        Pizza::bake("mozzarella", inches)
-    }
-
-    fn bake(topping: &str, inches: u8) -> Self {
-        Pizza {
-            topping: String::from(topping),
-            inches,
-        }
-    }
-}
-\end{lstlisting}
-
-前のスニペットには、ピザの準備にプライベート メソッド \texttt{Pizza::bake} を使用する 2 つのパブリック メソッド \texttt{Pizza::pepperoni} と \texttt{Pizza::mozzarella} を持つ \texttt{Pizza} 構造体があります。
-
-\texttt{src} ディレクトリと共に、\texttt{tests} という名前の新しいディレクトリを作成します。 その中に、次の内容を含む \texttt{pizzas.rs} という名前の新しいファイルを配置します。
-
-\begin{lstlisting}[numbers=none]
-use rusty_pizza::Pizza;
-
-#[test]
-fn can_make_pepperoni_pizza() {
-    let pizza = Pizza::pepperoni(12);
-    assert_eq!(pizza.topping, "pepperoni");
-    assert_eq!(pizza.inches, 12);
-}
-
-#[test]
-fn can_make_mozzarella_pizza() {
-    let pizza = Pizza::mozzarella(16);
-    assert_eq!(pizza.topping, "mozzarella");
-    assert_eq!(pizza.inches, 16);
-}
-\end{lstlisting}
-
-これで、統合テストの設定が完了したので、\texttt{cargo test} コマンドを実行して結果を確認できます。
-
-\begin{lstlisting}[numbers=none]
-running 0 tests
-
-test result: ok. 0 passed; 0 failed; 0 ignored; 0 measured; 0 filtered out
-
-     Running target/debug/deps/pizzas-1996564f80b33a1e
-
-running 2 tests
-test can_make_mozzarella_pizza ... ok
-test can_make_pepperoni_pizza ... ok
-
-test result: ok. 2 passed; 0 failed; 0 ignored; 0 measured; 0 filtered out
-
-   Doc-tests rusty_pizza
-
-running 0 tests
-
- test result: ok. 0 passed; 0 failed; 0 ignored; 0 measured; 0 filtered out
-\end{lstlisting}
-
-出力から、Rust によってテストの結果が個別のセクションに配置されることがわかります。 最初に単体テストの結果、次に統合の結果、最後にドキュメントの結果が表示されます。
-
-統合テスト セクションでは、テスト スイートによって \texttt{tests/pizzas.rs} ファイル内の 2 つのテストが収集され、実行されることがわかります。
-
-バイナリ クレートでは、他のクレートで使用できる機能が公開されないため、統合テストを使用してテストできるのはライブラリ クレートだけです。 その結果、多くの Rust バイナリ クレートに、\texttt{src/main.rs} のコードの大部分を含む \texttt{src/lib.rs} ファイルが含まれます。 次に、統合テストで、\texttt{use} を使用してクレートをライブラリとしてにインポートすることで、バイナリの機能をテストできます。
+\begin{enumerate}
+\item \texttt{\#[test]} 属性でタグ付けされたテスト関数は、どのような結果になることが予想されますか?
+\begin{itemize}
+\item テスト中にこの関数を実行することはできません。
+\item この関数はテスト中にパニックになります。
+\item この関数では、パニックなしでテストが実行されます。
+\item この関数は、関数がテストであることを示します。
+\end{itemize}
+\item \texttt{\#[test]} 属性と \texttt{\#[should\_panic]} 属性でタグ付けされたテスト関数は、どのような結果になることが予想されますか?
+\begin{itemize}
+\item この関数はテスト中にパニックになります。
+\item テスト中にこの関数を実行することはできません。
+\item この関数は、パニックなしで実行されます。
+\end{itemize}
+\item \texttt{\#[test]} 属性と \texttt{\#[ignore]} 属性でタグ付けされたテスト関数は、どのような結果になることが予想されますか?
+\begin{itemize}
+\item テスト中にこの関数を実行することはできません。
+\item この関数はテスト中にパニックになります。
+\item この関数は、パニックなしで実行されます。
+\end{itemize}
+\end{enumerate}
